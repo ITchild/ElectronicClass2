@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/selector_continer"
+        android:weightSum="2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Spinner
+            android:layout_weight="1"
+            android:layout_alignParentLeft="true"
+            android:id="@+id/select_channel"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:theme="@style/ThemeHoloLight" />
+        <Spinner
+            android:layout_weight="1"
+            android:layout_alignParentRight="true"
+            android:id="@+id/select_stream_type"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:theme="@style/ThemeHoloLight" />
+    </LinearLayout>
+
+    <SurfaceView
+        android:id="@+id/video_realview_sv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"/>
+
+
+</LinearLayout>

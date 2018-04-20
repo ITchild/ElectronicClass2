@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="36dip"
+    android:background="@color/main_card_bg"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/itemAtten_first_v"
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="@color/white"
+        android:visibility="gone"></View>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <View
+            android:layout_width="1dip"
+            android:layout_height="match_parent"
+            android:background="@color/white"></View>
+
+        <TextView
+            android:id="@+id/itemAtten_num_tv"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text=""
+            android:textColor="@color/white" />
+
+        <View
+            android:layout_width="1dip"
+            android:layout_height="match_parent"
+            android:background="@color/white"></View>
+
+        <TextView
+            android:id="@+id/itemAtten_name_tv"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1.5"
+            android:gravity="center"
+            android:text="无"
+            android:textColor="@color/white" />
+
+        <View
+            android:layout_width="1dip"
+            android:layout_height="match_parent"
+            android:background="@color/white"></View>
+
+        <TextView
+            android:id="@+id/itemAtten_Time_tv"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1.5"
+            android:gravity="center"
+            android:text="无"
+            android:textColor="@color/white" />
+
+        <View
+            android:layout_width="1dip"
+            android:layout_height="match_parent"
+            android:background="@color/white"></View>
+
+        <TextView
+            android:id="@+id/itemAtten_endTime_tv"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1.5"
+            android:gravity="center"
+            android:text="无"
+            android:textColor="@color/white" />
+
+        <View
+            android:layout_width="1dip"
+            android:layout_height="match_parent"
+            android:background="@color/white"></View>
+
+        <TextView
+            android:id="@+id/itemAtten_teacherName_tv"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="无"
+            android:textColor="@color/white" />
+
+        <View
+            android:layout_width="1dip"
+            android:layout_height="match_parent"
+            android:background="@color/white"></View>
+
+        <TextView
+            android:id="@+id/itemAtten_stuNum_tv"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="无"
+            android:textColor="@color/white" />
+
+        <View
+            android:layout_width="1dip"
+            android:layout_height="match_parent"
+            android:background="@color/white"></View>
+
+        <TextView
+            android:id="@+id/itemAtten_stuYNum_tv"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="无"
+            android:textColor="@color/white" />
+
+        <View
+            android:layout_width="1dip"
+            android:layout_height="match_parent"
+            android:background="@color/white"></View>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="@color/white"></View>
+
+</LinearLayout>

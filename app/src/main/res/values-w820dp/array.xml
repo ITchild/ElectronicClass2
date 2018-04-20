@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="encode_mode">
+        <item>MPEG4</item>
+        <item>MS-MPEG4</item>
+        <item>MPEG2</item>
+        <item>MPEG1</item>
+        <item>H.263</item>
+        <item>MJPG</item>
+        <item>FCC-MPEG4</item>
+        <item>H.264</item>
+        <item>H.265</item>
+    </string-array>
+    <string-array name="encode_mode_profile">
+        <item>H.264 Baseline</item>
+        <item>H.264 Main</item>
+        <item>H.264 Extended</item>
+        <item>H.264 High</item>
+    </string-array>
+    <string-array name="encode_resolution_item">
+        <item>D1</item>
+        <item>HD1</item>
+        <item>BCIF</item>
+        <item>CIF</item>
+        <item>QCIF</item>
+        <item>VGA</item>
+        <item>QVGA</item>
+        <item>SVCD</item>
+        <item>QQVGA</item>
+        <item>SVGA</item>
+        <item>XVGA</item>
+        <item>WXGA</item>
+        <item>SXGA</item>
+        <item>WSXGA</item>
+        <item>UXGA</item>
+        <item>WUXGA</item>
+        <item>LFT</item>
+        <item>720</item>
+        <item>1080</item>
+        <item>1_3M</item>
+        <item>2_5M</item>
+        <item>5M</item>
+        <item>3M</item>
+        <item>5_0M</item>
+        <item>1_2M</item>
+        <item>1408_1024</item>
+        <item>8M</item>
+        <item>2560_1920</item>
+        <item>960H</item>
+        <item>960_720</item>
+        <item>NHD</item>
+        <item>QNHD</item>
+        <item>QQNHD</item>
+    </string-array>
+    <string-array name="encode_bit_rate_item">
+        <item>10</item>
+        <item>20</item>
+        <item>32</item>
+        <item>48</item>
+        <item>64</item>
+        <item>80</item>
+        <item>96</item>
+        <item>128</item>
+        <item>160</item>
+        <item>192</item>
+        <item>224</item>
+        <item>256</item>
+        <item>320</item>
+        <item>384</item>
+        <item>448</item>
+        <item>512</item>
+        <item>640</item>
+        <item>768</item>
+        <item>896</item>
+        <item>1024</item>
+        <item>1280</item>
+        <item>1536</item>
+        <item>1792</item>
+        <item>2048</item>
+        <item>4096</item>
+        <item>6144</item>
+        <item>8192</item>
+        <item>10240</item>
+        <item>12288</item>
+        <item>14336</item>
+        <item>16384</item>
+    </string-array>
+
+    <string-array name="play_back_speed">
+        <item>1/4</item>
+        <item>1/2</item>
+        <item>x1</item>
+        <item>x2</item>
+        <item>x4</item>
+    </string-array>
+</resources>

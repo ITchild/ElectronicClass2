@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tool="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:background="@drawable/main_card_bg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dip"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/schedule_date_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dip"
+            android:textColor="@color/white"
+            tool:text="2016年01月01日"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:id="@+id/schedule_week_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dip"
+            android:textColor="@color/white"
+            tool:text="周六"
+            android:textSize="15sp"/>
+
+        <View
+            android:layout_width="0dip"
+            android:layout_height="1dip"
+            android:layout_weight="1"></View>
+
+        <Button
+            android:id="@+id/schedule_today_bt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dip"
+            android:text="当日"/>
+
+        <ImageView
+            android:id="@+id/schedule_dateQ_iv"
+            android:layout_width="30dip"
+            android:layout_height="30dip"
+            android:src="@mipmap/left_write_big"
+            />
+        <ImageView
+            android:id="@+id/schedule_dateH_iv"
+            android:layout_width="30dip"
+            android:layout_height="30dip"
+            android:layout_marginLeft="10dip"
+            android:src="@mipmap/right_write_big"
+            android:layout_marginRight="20dip"
+            />
+        <ImageView
+            android:id="@+id/schedule_date_iv"
+            android:layout_width="40dip"
+            android:layout_height="40dip"
+            android:layout_marginRight="20dip"
+            android:src="@mipmap/calendar_write"
+            />
+    </LinearLayout>
+
+
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/schedule_dis_rv"
+        android:padding="5dip"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </android.support.v7.widget.RecyclerView>
+
+</LinearLayout>

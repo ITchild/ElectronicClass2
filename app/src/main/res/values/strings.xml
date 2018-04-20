@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">电子班牌</string>
+
+
+    <string name="NET_USER_FLASEPWD_TRYTIME">输入密码错误超过限制次数</string>
+
+    <string name="NET_LOGIN_ERROR_PASSWORD">密码不正确</string>
+
+    <string name="NET_LOGIN_ERROR_USER">帐户不存在</string>
+
+    <string name="NET_LOGIN_ERROR_TIMEOUT">等待登录返回超时</string>
+
+    <string name="NET_LOGIN_ERROR_RELOGGIN">帐号已登录</string>
+
+    <string name="NET_LOGIN_ERROR_LOCKED">帐号已被锁定</string>
+
+    <string name="NET_LOGIN_ERROR_BLACKLIST">帐号已被列为黑名单</string>
+
+    <string name="NET_LOGIN_ERROR_BUSY">资源不足,系统忙</string>
+
+    <string name="NET_LOGIN_ERROR_CONNECT">登录设备超时,请检查网络并重试</string>
+
+    <string name="NET_LOGIN_ERROR_NETWORK">网络连接失败</string>
+
+    <string name="NET_ERROR">未知错误</string>
+
+    <string name="live_preview_failed">实时预览失败</string>
+
+    <string name="channel">通道</string>
+    <string name="info_success">成功</string>
+    <string name="info_failed">失败</string>
+
+    <string name="get_encode_failed">获取编码配置信息失败</string>
+    <string name="waiting">请等待...</string>
+    <string name="logining">登录中...</string>
+
+    <string name="alarm_push_not_support_google_service">不支持谷歌服务</string>
+    <string name="alarm_push_sub_successed">订阅成功</string>
+    <string name="alarm_push_sub_failed">订阅失败</string>
+    <string name="alarm_push_unsub_successed">退订成功</string>
+    <string name="alarm_push_unsub_failed">退订失败</string>
+    <string name="alarm_push_unknown_type">未知报警</string>
+    <string name="alarm_push_video_motion">视频动检</string>
+    <string name="alarm_push_title">报警</string>
+    <string name="alarm_push_alarm_type">报警类型</string>
+    <string name="alarm_push_alarm_time">报警时间</string>
+
+    <string name="activity_p2plogin_device_id">设备序列号</string>
+
+    <string name="copyRight">版权所有：北京思远云科教育科技有限公司</string>
+
+
+    <array name="stream_type_array">
+        <item>主码流</item>
+        <item>辅码流</item>
+        <!--    <item>辅码流-2</item>
+            <item>辅码流-3</item>
+            -->
+    </array>
+
+</resources>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="twhite">#00FFFFFF</color>
+
+    <color name="colorPageBg">#f2f4f5</color>
+    <color name="itemBackgroundWhite">#cfff</color>
+    <color name="green">#58C25D</color>
+
+    <color name="seek_background">#809e9e9e</color>
+    <color name="seek_secondary_progress">#88f48fb1</color>
+    <color name="seek_progress">#cce91e63</color>
+    <color name="seek_ball">#ffff</color>
+    <color name="background_gray">#ffa5a5a5</color>
+    <color name="background_gray_light">#ffbababa</color>
+    <color name="bg_video_view">#80000000</color>
+    <color name="main_card_bg">#0C284F</color>
+    <color name="main_card_border">#21418A</color>
+    <color name="main_bg">#020E1E</color>
+    <color name="brown">#492A3B</color>
+    <color name="btn_bg">#EFEFEF</color>
+    <color name="btn_text">#333333</color>
+    <color name="table_bg">#B8C0C8</color>
+    <color name="table_border">#797979</color>
+    <color name="media_quality_selected">#ccec407a</color>
+    <color name="gray_light">#dcdcdc</color>
+</resources>

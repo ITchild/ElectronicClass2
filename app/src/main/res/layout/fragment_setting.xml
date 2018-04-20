@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tool="http://schemas.android.com/tools"
+    android:background="@color/main_card_bg"
+    android:orientation="vertical"
+    android:padding="10dip">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_weight="1">
+
+        <Button
+            android:id="@+id/setting_ip_bt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ip地址设置"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/setting_ClassRoom_bt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="绑定教室"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:text="屏幕亮度调节"
+            android:textColor="@color/white" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dip">
+            <TextView
+                android:id="@+id/setting_change_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/setting_change_sb"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="5dip"
+                android:text="0"
+                android:textColor="@color/black" />
+            <SeekBar
+                android:id="@+id/setting_change_sb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:thumb="@drawable/seekbar_thumb"
+                android:max="100" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/setting_appName_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        tool:text="软件名称：电子班牌"
+        android:textColor="@color/white" />
+
+    <TextView
+        android:id="@+id/setting_version_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        tool:text="版本号：1.23.6"
+        android:textColor="@color/white" />
+
+    <TextView
+        android:id="@+id/setting_Copyright_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dip"
+        android:gravity="center"
+        tool:text="@string/copyRight"
+        android:textColor="@color/white" />
+
+</LinearLayout>

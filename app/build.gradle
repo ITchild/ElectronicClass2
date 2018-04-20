@@ -1,0 +1,64 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.3"
+    defaultConfig {
+        applicationId "com.syyk.electronicclass2"
+        minSdkVersion 18
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0.1"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    //配置打包生成的文件名
+    android.applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            output.outputFile = new File(output.outputFile.parent, defaultConfig.applicationId + "-" + buildType.name + "-v" +
+                    defaultConfig.versionName + "-" + defaultConfig.versionCode + ".apk");
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ["libs"]
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    testCompile 'junit:junit:4.12'
+    //联网的支持
+    compile files('libs/okhttp-3.2.0.jar')
+    compile files('libs/okio-1.7.0.jar')
+    //ButterKnife的依赖
+    compile 'com.jakewharton:butterknife:8.0.1'
+    apt 'com.jakewharton:butterknife-compiler:8.0.1'
+    //EventBus的依赖
+    compile 'org.greenrobot:eventbus:3.0.0'
+    compile files('libs/INetSDK.jar')
+    compile files('libs/IPlaySDK.jar')
+    compile files('libs/libToUProxy.jar')
+    compile files('libs/SmartConfig.jar')
+    compile files('libs/fastjson-1.2.44.jar')
+    compile files('libs/universal-image-loader-1.9.5.jar')
+    //RecyClerView的依赖
+    compile 'com.android.support:recyclerview-v7:25.3.1'
+    //日历的控件
+    compile 'com.prolificinteractive:material-calendarview:1.4.0'
+    //二维码控件
+    compile project(':libzxing')
+}
