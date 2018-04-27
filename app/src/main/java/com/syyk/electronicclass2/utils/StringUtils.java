@@ -20,14 +20,17 @@ public class StringUtils {
      * @param flag
      */
     public static void showToast(String flag){
-        Toast.makeText(ElectronicApplication.getmIntent(),flag,Toast.LENGTH_SHORT).show();
+        ToastUtil.showToast(ElectronicApplication.getmIntent(),flag);
     }
     /**
      * 中部的Toast
      * @param flag
      */
     public static void showCenterToast(String flag){
-        Toast toast = Toast.makeText(ElectronicApplication.getmIntent(),flag,Toast.LENGTH_SHORT);
+        Toast toast = ToastUtil.getmToast(ElectronicApplication.getmIntent(),flag) ;
+        if(toast == null){
+            return;
+        }
         toast.setGravity(Gravity.CENTER,0,0);
         toast.show();
     }
@@ -36,7 +39,10 @@ public class StringUtils {
      * @param flag
      */
     public static void showImageToast(String flag){
-        Toast toast = Toast.makeText(ElectronicApplication.getmIntent(),flag,Toast.LENGTH_SHORT);
+        Toast toast = ToastUtil.getmToast(ElectronicApplication.getmIntent(),flag) ;
+        if(toast == null){
+            return;
+        }
         toast.setGravity(Gravity.CENTER, 0, 0);
         LinearLayout toastView = (LinearLayout) toast.getView();
         ImageView imageCodeProject = new ImageView(ElectronicApplication.getmIntent());

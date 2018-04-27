@@ -45,7 +45,8 @@ public class ConnectionClient {
             public void onFailure(Call call, IOException e) {
                 HttpEventBean bean = new HttpEventBean();
                 bean.setResCode(NetCartion.FIAL);
-                bean.setRes("请检查您的网络!");
+                bean.setBackCode(resCode);
+                bean.setRes("未连接到服务器!");
                 EventBus.getDefault().post(bean);
             }
             @Override

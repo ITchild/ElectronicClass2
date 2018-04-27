@@ -38,10 +38,12 @@
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".activity.UpDataApkActivity"
+            android:screenOrientation="landscape"></activity>
 
         <receiver
             android:name=".receiver.BootBroadcastReceiver"

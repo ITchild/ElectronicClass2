@@ -38,6 +38,7 @@ import com.syyk.electronicclass2.utils.Catition;
 import com.syyk.electronicclass2.utils.ComUtils;
 import com.syyk.electronicclass2.utils.DateTimeUtil;
 import com.syyk.electronicclass2.utils.StringUtils;
+import com.syyk.electronicclass2.utils.UpdateManger;
 import com.xys.libzxing.zxing.encoding.EncodingUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -117,13 +118,14 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         //串口的初始化和数据的接收
         initPort();
 
-
         Bitmap bitmap = EncodingUtils.createQRCode("http://www.baidu.com", 1000, 1000, null);
         // 设置图片
         main_QR_iv.setImageBitmap(bitmap);
 
         ElectronicApplication.getmIntent().timeMulis = DateTimeUtil.getCurFormat2Millis("2018-04-20 14:02:30");
 
+        //删除之前下载的安装包
+        UpdateManger.removeApk();
     }
 
     private void initPort(){
@@ -163,7 +165,6 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         tableData.add(new SettingFragmnet());
 
         db = new RCDBHelper(this);
-
     }
 
     /**
@@ -346,6 +347,9 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(null != handler) {
+            handler.removeCallbacks(mRunnable);
+        }
         EventBus.getDefault().unregister(this);
     }
 }

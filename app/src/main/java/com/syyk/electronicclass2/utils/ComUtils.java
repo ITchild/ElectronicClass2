@@ -237,11 +237,10 @@ public class ComUtils {
     }
 
     /**
-     * 获取版本号
+     * 获取版本名称
      * @param ctx
      * @return
      */
-
     public static String getLocalVersionName(Context ctx) {
         String localVersion = "";
         try {
@@ -253,6 +252,24 @@ public class ComUtils {
             e.printStackTrace();
         }
         return localVersion;
+    }
+
+    /**
+     * 获取版本号
+     * @param ctx
+     * @return
+     */
+    public static int getLocalVersionCode(Context ctx){
+        int localCode = 0;
+        try {
+            PackageInfo packageInfo = ctx.getApplicationContext()
+                    .getPackageManager()
+                    .getPackageInfo(ctx.getPackageName(), 0);
+            localCode = packageInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return localCode;
     }
 
 }

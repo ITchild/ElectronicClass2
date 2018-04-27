@@ -6,6 +6,10 @@ package com.syyk.electronicclass2.utils;
 
 public class Catition {
 
+    public static final String UpDateApkUrl = "/sdcard/电子班牌/";
+    public static final String UpDateApkName = UpDateApkUrl+"电子班牌.apk";
+
+
     //测试的返回接口
     public static final int TESTBACK = -1000;
 

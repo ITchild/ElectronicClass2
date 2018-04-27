@@ -134,6 +134,15 @@ public class HomePagerFragment extends Fragment {
             }
         }else if(bean.getResCode() == NetCartion.FIAL){
             StringUtils.showToast(bean.getRes());
+            switch (bean.getBackCode()){
+                case NetCartion.GETHOMEPAGER_BACK :
+                    File file = new File(videoUrl1);
+                    if(file.exists()){
+                        //直接播放
+                        playVideo();
+                    }
+                    break;
+            }
         }
     }
 

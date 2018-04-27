@@ -23,6 +23,7 @@ import com.syyk.electronicclass2.httpcon.NetCartion;
 import com.syyk.electronicclass2.utils.Catition;
 import com.syyk.electronicclass2.utils.ComUtils;
 import com.syyk.electronicclass2.utils.StringUtils;
+import com.syyk.electronicclass2.utils.UpdateManger;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -56,6 +57,8 @@ public class SettingFragmnet extends Fragment {
 
     private BondClassRoomDialog bondClassRoomDialog;
     private List<ClassRoomBean> classData = new ArrayList<>();
+
+    UpdateManger updateManger ;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -105,9 +108,11 @@ public class SettingFragmnet extends Fragment {
         setting_appName_tv.setText("软件名称："+getContext().getResources().getString(R.string.app_name));
         setting_version_tv.setText("版本号："+ComUtils.getLocalVersionName(getActivity()));
         setting_Copyright_tv.setText(getContext().getResources().getString(R.string.copyRight));
+
+        updateManger = new UpdateManger(getContext(),"http://172.26.106.1/ws.yingyonghui.com/34932c8a2438008b7024de8b64dd9d35/5ae2a3bf/apk/5789178/a05a158aa2eb484afe20f779c2edc45d");
     }
 
-    @OnClick({R.id.setting_ip_bt,R.id.setting_ClassRoom_bt})
+    @OnClick({R.id.setting_ip_bt,R.id.setting_ClassRoom_bt,R.id.setting_UpDate_bt})
     public void settingOnClick(View view){
         switch (view.getId()){
             case R.id.setting_ip_bt :
@@ -116,6 +121,9 @@ public class SettingFragmnet extends Fragment {
             case R.id.setting_ClassRoom_bt ://绑定教室
                 //先获取教室的列表
                 Connection.getClassRoom(NetCartion.GETCLASSROOM_BACK);
+                break;
+            case R.id.setting_UpDate_bt ://检查软甲更新
+                updateManger.showNoticeDialog();
                 break;
         }
     }
