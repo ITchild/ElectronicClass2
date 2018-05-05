@@ -58,9 +58,9 @@ public class DateTimeUtil {
     /**
      * 根据日期获取毫秒数
      */
-    public static long getCurFormat2Millis(String stringDate){
-        //先把字符串转成Date类型
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static long getCurFormat2Millis(String format,String stringDate){
+        //先把字符串转成Date类型 "yyyy-MM-dd HH:mm:ss"
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
         //此处会抛异常
         Date date = null;
         try {

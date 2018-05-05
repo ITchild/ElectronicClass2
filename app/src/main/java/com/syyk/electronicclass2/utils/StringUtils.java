@@ -53,7 +53,8 @@ public class StringUtils {
 
     public static void showLog(String flag){
         if(ElectronicApplication.getmIntent().isDebug()){
-            Log.i("fei_ElectronicClass",flag);
+            Log.i("fei_ElectronicClass"+DateTimeUtil.getCurFormatStrTime("yyyy-MM-dd HH:mm:ss",
+                    ElectronicApplication.getmIntent().timeMulis),flag);
         }
     }
 

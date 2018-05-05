@@ -5,22 +5,31 @@ package com.syyk.electronicclass2.bean;
  */
 
 public class HomePagerBean {
-    private String _mainpageurl;
-    private String _datetime;
+    private String Introduce;
+    private String File;
+    private String Time;
 
-    public String get_mainpageurl() {
-        return _mainpageurl;
+    public String getIntroduce() {
+        return Introduce;
     }
 
-    public void set_mainpageurl(String _mainpageurl) {
-        this._mainpageurl = _mainpageurl;
+    public void setIntroduce(String introduce) {
+        Introduce = introduce;
     }
 
-    public String get_datetime() {
-        return _datetime;
+    public String getFile() {
+        return File;
     }
 
-    public void set_datetime(String _datetime) {
-        this._datetime = _datetime;
+    public void setFile(String file) {
+        File = file;
+    }
+
+    public String getTime() {
+        return Time;
+    }
+
+    public void setTime(String time) {
+        Time = time;
     }
 }

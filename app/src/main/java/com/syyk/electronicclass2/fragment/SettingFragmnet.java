@@ -1,5 +1,6 @@
 package com.syyk.electronicclass2.fragment;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,17 +12,21 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
+import com.syyk.electronicclass2.ElectronicApplication;
 import com.syyk.electronicclass2.R;
 import com.syyk.electronicclass2.bean.ClassRoomBean;
 import com.syyk.electronicclass2.bean.IntroAndNoticeBean;
 import com.syyk.electronicclass2.bean.MessageBean;
+import com.syyk.electronicclass2.bean.VerSionCodeBean;
 import com.syyk.electronicclass2.dialog.BondClassRoomDialog;
 import com.syyk.electronicclass2.dialog.MainSettingDialog;
 import com.syyk.electronicclass2.httpcon.Connection;
+import com.syyk.electronicclass2.httpcon.ConnectionClient;
 import com.syyk.electronicclass2.httpcon.HttpEventBean;
 import com.syyk.electronicclass2.httpcon.NetCartion;
 import com.syyk.electronicclass2.utils.Catition;
 import com.syyk.electronicclass2.utils.ComUtils;
+import com.syyk.electronicclass2.utils.JsonUtils;
 import com.syyk.electronicclass2.utils.StringUtils;
 import com.syyk.electronicclass2.utils.UpdateManger;
 
@@ -41,10 +46,10 @@ import butterknife.OnClick;
  */
 
 public class SettingFragmnet extends Fragment {
-    @BindView(R.id.setting_change_sb)
-    SeekBar setting_change_sb;
-    @BindView(R.id.setting_change_tv)
-    TextView setting_change_tv;
+//    @BindView(R.id.setting_change_sb)
+//    SeekBar setting_change_sb;
+//    @BindView(R.id.setting_change_tv)
+//    TextView setting_change_tv;
 
     @BindView(R.id.setting_appName_tv)
     TextView setting_appName_tv;
@@ -59,6 +64,8 @@ public class SettingFragmnet extends Fragment {
     private List<ClassRoomBean> classData = new ArrayList<>();
 
     UpdateManger updateManger ;
+
+    private String macAddr ;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,42 +85,42 @@ public class SettingFragmnet extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mainSettingDialog = new MainSettingDialog(getContext());
-        setting_change_sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                setting_change_tv.setText(progress+"");
-            }
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                String light = setting_change_tv.getText().toString();
-                if(!StringUtils.isEmpty(light)) {
-                    String hexlight = Integer.toHexString(Integer.parseInt(light));
-                    if(hexlight.length() == 1){
-                        hexlight = "0"+hexlight;
-                    }
-                    StringUtils.showLog(hexlight);
-                    MessageBean bean = new MessageBean();
-                    bean.setMsgCode(Catition.SETTINGLIANGDU);
-                    bean.setMsgs(hexlight);
-                    EventBus.getDefault().post(bean);
-                }else{
-
-                }
-            }
-        });
+//        setting_change_sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                setting_change_tv.setText(progress+"");
+//            }
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//
+//            }
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//                String light = setting_change_tv.getText().toString();
+//                if(!StringUtils.isEmpty(light)) {
+//                    String hexlight = Integer.toHexString(Integer.parseInt(light));
+//                    if(hexlight.length() == 1){
+//                        hexlight = "0"+hexlight;
+//                    }
+//                    StringUtils.showLog(hexlight);
+//                    MessageBean bean = new MessageBean();
+//                    bean.setMsgCode(Catition.SETTINGLIANGDU);
+//                    bean.setMsgs(hexlight);
+//                    EventBus.getDefault().post(bean);
+//                }else{
+//
+//                }
+//            }
+//        });
         setting_appName_tv.setText("软件名称："+getContext().getResources().getString(R.string.app_name));
         setting_version_tv.setText("版本号："+ComUtils.getLocalVersionName(getActivity()));
         setting_Copyright_tv.setText(getContext().getResources().getString(R.string.copyRight));
-
-        updateManger = new UpdateManger(getContext(),"http://172.26.106.1/ws.yingyonghui.com/34932c8a2438008b7024de8b64dd9d35/5ae2a3bf/apk/5789178/a05a158aa2eb484afe20f779c2edc45d");
     }
 
-    @OnClick({R.id.setting_ip_bt,R.id.setting_ClassRoom_bt,R.id.setting_UpDate_bt})
+    @OnClick({R.id.setting_ip_bt,R.id.setting_ClassRoom_bt,R.id.setting_UpDate_bt,R.id.setting_menu_bt,
+            R.id.setting_up_bt,R.id.setting_down_bt,R.id.setting_Ok_bt})
     public void settingOnClick(View view){
+        MessageBean bean = new MessageBean();
         switch (view.getId()){
             case R.id.setting_ip_bt :
                 mainSettingDialog.show();
@@ -123,7 +130,27 @@ public class SettingFragmnet extends Fragment {
                 Connection.getClassRoom(NetCartion.GETCLASSROOM_BACK);
                 break;
             case R.id.setting_UpDate_bt ://检查软甲更新
-                updateManger.showNoticeDialog();
+                Connection.checkVisionCode(NetCartion.CHECKVISIONCODE_BACK);
+                break;
+            case R.id.setting_menu_bt :// 菜单/确认
+                bean.setMsgCode(Catition.MENUSETTING);
+                bean.setMsgs("07A0010101AAFF");
+                EventBus.getDefault().post(bean);
+                break;
+            case R.id.setting_up_bt :// 上翻
+                bean.setMsgCode(Catition.UPSETTING);
+                bean.setMsgs("07A0010103ACFF");
+                EventBus.getDefault().post(bean);
+                break;
+            case R.id.setting_down_bt :// 下翻
+                bean.setMsgCode(Catition.DOWNSETTING);
+                bean.setMsgs("07A0010104ADFF");
+                EventBus.getDefault().post(bean);
+                break;
+            case R.id.setting_Ok_bt :// 返回
+                bean.setMsgCode(Catition.OKSETTING);
+                bean.setMsgs("07A0010102ABFF");
+                EventBus.getDefault().post(bean);
                 break;
         }
     }
@@ -141,7 +168,7 @@ public class SettingFragmnet extends Fragment {
             switch(bean.getBackCode()){
                 case NetCartion.GETCLASSROOM_BACK :
                     final String classRes = bean.getRes();
-                    classData = JSON.parseArray(classRes,ClassRoomBean.class);
+                    classData = JSON.parseArray(JsonUtils.getJsonArr(classRes,"Model").toString(),ClassRoomBean.class);
                     if(classData != null){
                         bondClassRoomDialog = new BondClassRoomDialog(getContext(),classData);
                         bondClassRoomDialog.show();
@@ -149,18 +176,43 @@ public class SettingFragmnet extends Fragment {
                             @Override
                             public void onItemClick(int postion) {
                                 //进行教室的绑定
-                                Connection.bondClassRoom(ComUtils.getMac(),
-                                        classData.get(postion).get_id()+"",NetCartion.BONDCLASSROOM_BACK);
+                                macAddr = ComUtils.getMac();
+                                Connection.bondClassRoom(macAddr,classData.get(postion).getId()+"",NetCartion.BONDCLASSROOM_BACK);
                             }
                         });
                     }
                     break;
                 case NetCartion.BONDCLASSROOM_BACK:
                     String bondString = bean.getRes();
-                    if(bondString != null && bondString.equals("Success!")){
+                    String state = JsonUtils.getJsonKey(bondString,"Status");
+                    if(state.equals("1")){
                         StringUtils.showCenterToast("绑定教室成功");
+                        SharedPreferences preferences = ElectronicApplication.getmIntent().getSharedPreferences("Setting",0);
+                        SharedPreferences.Editor editor = preferences.edit();
+                        editor.putString("mac",macAddr);
+                        editor.commit();
+                        //绑定教室成功，发送消息
+                        MessageBean messageBean = new MessageBean();
+                        messageBean.setMsgCode(Catition.BINGCLASSROOM_SUCCESS);
+                        EventBus.getDefault().post(messageBean);
                     }else{
                         StringUtils.showCenterToast("绑定教室失败");
+                    }
+                    break;
+                case NetCartion.CHECKVISIONCODE_BACK :
+                    String jsonString = bean.getRes();
+                    String checkState = JsonUtils.getJsonKey(jsonString,"Status");
+                    if(checkState.equals("1")){
+                        VerSionCodeBean bean1 = JSON.parseObject(JsonUtils.getJsonObject(jsonString,"Model")
+                                ,VerSionCodeBean.class);
+                        if(Integer.parseInt(bean1.getVersion()) > ComUtils.getLocalVersionCode(getActivity())){
+                            updateManger = new UpdateManger(getContext(),NetCartion.hip+bean1.getPath());
+                            updateManger.showNoticeDialog();
+                        }else{
+                            StringUtils.showCenterToast("安装包已经是最新了");
+                        }
+                    }else{
+                        StringUtils.showToast(JsonUtils.getJsonKey(jsonString,"Message"));
                     }
                     break;
             }

@@ -50,19 +50,19 @@
             android:layout_height="match_parent"
             android:background="@color/white"></View>
 
-        <TextView
-            android:id="@+id/itemAtten_Time_tv"
-            android:layout_width="0dip"
-            android:layout_height="match_parent"
-            android:layout_weight="1.5"
-            android:gravity="center"
-            android:text="无"
-            android:textColor="@color/white" />
+        <!--<TextView-->
+            <!--android:id="@+id/itemAtten_Time_tv"-->
+            <!--android:layout_width="0dip"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_weight="1.5"-->
+            <!--android:gravity="center"-->
+            <!--android:text="无"-->
+            <!--android:textColor="@color/white" />-->
 
-        <View
-            android:layout_width="1dip"
-            android:layout_height="match_parent"
-            android:background="@color/white"></View>
+        <!--<View-->
+            <!--android:layout_width="1dip"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:background="@color/white"></View>-->
 
         <TextView
             android:id="@+id/itemAtten_endTime_tv"

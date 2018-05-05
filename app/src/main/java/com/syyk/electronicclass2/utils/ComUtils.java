@@ -160,16 +160,30 @@ public class ComUtils {
         switch (flag){
             case "ip" :
                 return preferences.getString("ip","192.168.1.198");
-            case "vip" :
-                return preferences.getString("vIp","192.168.1.208");
-            case "vport" :
-                return preferences.getString("vPort","37777");
+            case "port" :
+                return preferences.getString("port","9000");
+            case "mac" :
+                String mac = preferences.getString("mac",null);
+                if(StringUtils.isEmpty(mac)){
+                    StringUtils.showToast("请先绑定教室");
+                    return null;
+                }else{
+                    return mac;
+                }
+            case "hip" :
+                return preferences.getString("hIp","192.168.1.198");
+            case "hport" :
+                return preferences.getString("hPort","1192");
             case "vuser" :
                 return preferences.getString("vUser","admin");
             case "vpass" :
                 return preferences.getString("vPass","admin");
         }
         return null;
+    }
+
+    public static String getRandom(){
+        return Math.random()+"";
     }
 
 

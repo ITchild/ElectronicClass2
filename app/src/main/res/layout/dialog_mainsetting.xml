@@ -32,15 +32,31 @@
             android:layout_height="wrap_content"
             android:textSize="@dimen/main_title_size"
             android:textColor="@color/black"
-            android:text="控制IP地址："/>
+            android:text="接口IP地址："/>
         <EditText
             android:id="@+id/mainSetting_Contorlp_et"
-            android:layout_width="match_parent"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
+            android:layout_weight="2"
             android:hint="请输入IP地址"
             android:gravity="center"
             android:textColor="@color/black"
             android:digits="1234567890."/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/main_title_size"
+            android:textColor="@color/black"
+            android:text="端口："/>
+        <EditText
+            android:id="@+id/mainSetting_ContorlPort_et"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="请输入端口"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:digits="1234567890"/>
     </LinearLayout>
 
     <LinearLayout
@@ -48,18 +64,17 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:layout_margin="@dimen/jianju"
-        android:visibility="gone"
         android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/main_title_size"
             android:textColor="@color/black"
-            android:text="摄像机IP地址："/>
+            android:text="后台IP地址："/>
         <EditText
-            android:id="@+id/mainSetting_VoideIp_et"
+            android:id="@+id/mainSetting_HIp_et"
             android:layout_width="0dip"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:layout_height="wrap_content"
             android:hint="请输入IP地址"
             android:gravity="center"
@@ -70,9 +85,9 @@
             android:layout_height="wrap_content"
             android:textSize="@dimen/main_title_size"
             android:textColor="@color/black"
-            android:text="摄像机端口："/>
+            android:text="端口："/>
         <EditText
-            android:id="@+id/mainSetting_VoidePort_et"
+            android:id="@+id/mainSetting_HPort_et"
             android:layout_width="0dip"
             android:layout_weight="1"
             android:layout_height="wrap_content"

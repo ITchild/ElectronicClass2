@@ -42,9 +42,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.UpDataApkActivity"
-            android:screenOrientation="landscape"></activity>
-
         <receiver
             android:name=".receiver.BootBroadcastReceiver"
             android:enabled="true"

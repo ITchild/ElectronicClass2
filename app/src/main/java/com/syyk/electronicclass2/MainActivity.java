@@ -37,6 +37,7 @@ import com.syyk.electronicclass2.ui.CustomViewPager;
 import com.syyk.electronicclass2.utils.Catition;
 import com.syyk.electronicclass2.utils.ComUtils;
 import com.syyk.electronicclass2.utils.DateTimeUtil;
+import com.syyk.electronicclass2.utils.JsonUtils;
 import com.syyk.electronicclass2.utils.StringUtils;
 import com.syyk.electronicclass2.utils.UpdateManger;
 import com.xys.libzxing.zxing.encoding.EncodingUtils;
@@ -96,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
 
     //串口的数据
     private SerialPortConnection serial;
-    private String devName3 = "/dev/ttyAMA4";//串口4（与之前的不同，ttyAMA4对应物理的串口的4）
+    private String devName3 = "/dev/ttyAMA2";//串口4（与之前的不同，ttyAMA4对应物理的串口的4）
     private int speed = 115200;
     private int dataBits = 8;
     private int stopBits = 1;
@@ -118,14 +119,17 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         //串口的初始化和数据的接收
         initPort();
 
-        Bitmap bitmap = EncodingUtils.createQRCode("http://www.baidu.com", 1000, 1000, null);
+        Bitmap bitmap = EncodingUtils.createQRCode(NetCartion.hip+"/Mobile/Login?Id=59640", 1300, 1300, null);
         // 设置图片
         main_QR_iv.setImageBitmap(bitmap);
-
-        ElectronicApplication.getmIntent().timeMulis = DateTimeUtil.getCurFormat2Millis("2018-04-20 14:02:30");
-
         //删除之前下载的安装包
         UpdateManger.removeApk();
+        //走接口，获取系统的时间
+        Connection.getSystemTime(NetCartion.GETSYSTEMTIMEBACK);
+//        //测试考勤
+//        Connection.PostCardIdMsg("0725825865e44ab699ddbe883a26d39e","59640",NetCartion.POSTCARDIDMSG_BACK);
+//        //测试获取考勤人数
+//        Connection.getAttendanceCount("59640",NetCartion.GETATTENDANCECOUNT);
     }
 
     private void initPort(){
@@ -134,10 +138,10 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
             @Override
             public void onStart(String startResult) {
                 if (startResult.equals("串口启动成功")) {
-                    StringUtils.showLog("串口3启动成功");
+                    StringUtils.showLog("串口"+devName3+"启动成功");
 //                    isConnect = true;
                 }else if(startResult.equals("串口启动失败")){
-                    StringUtils.showLog("串口3启动失败");
+                    StringUtils.showLog("串口"+devName3+"启动失败");
                 }
             }
             @Override
@@ -150,6 +154,12 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
             }
         });
         serial.connect(devfd, devName3, speed, dataBits, stopBits,"N","N");
+    }
+
+    @Override
+    protected void onResume() {
+        ziHandler.postDelayed(ziRunnable,20000);
+        super.onResume();
     }
 
     /**
@@ -182,7 +192,6 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         vp_content.setCurrentItem(0);
         vp_content.setOffscreenPageLimit(7); // 设置viewpager的缓存界面数
     }
-
     /**
      * 串口的数据解析
      * @param bean
@@ -214,16 +223,23 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     }
 
     private void netReciverContorl(String data){
-        String Uid = data.substring(2,4);
+        //0A A0 02 04 01 02 03 04 XX FF
+        String Uid = data.substring(0,8);
         switch (Uid){
-            case "10" :
+            case "0AA00204" :
                 //硬件上传的卡号
-                int cardIdNum = Integer.parseInt(data.substring(4,6),16)*2;
-                String cardId = data.substring(6,6+cardIdNum);
+                int cardIdNum = Integer.parseInt(data.substring(6,8),16)*2;
+                String cardId = data.substring(8,8+cardIdNum);
+                StringUtils.showLog("卡号为："+cardId);
                 if(cardId != null){
                     if(!frontCarId.equals(cardId)) {
-                        Connection.PostCardIdMsg(cardId,NetCartion.POSTCARDIDMSG_BACK);
-                        frontCarId = cardId;
+                        String SyllabusId = ElectronicApplication.getmIntent().SyllabusId;
+                        if(SyllabusId != null) {
+                            Connection.PostCardIdMsg("cardId",SyllabusId,NetCartion.POSTCARDIDMSG_BACK);
+                            frontCarId = cardId;
+                        }else {
+                            StringUtils.showToast("当前没有课程");
+                        }
                     }else{
                         StringUtils.showCenterToast("你已经签到了！！！");
                     }
@@ -236,9 +252,29 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     public void mainHttpEvent(HttpEventBean bean){
         if(bean.getResCode() == NetCartion.SUCCESS){
             switch(bean.getBackCode()){
-                case Catition.TESTBACK :
+                case NetCartion.TESTBACK :
                     StringUtils.showToast(bean.getRes());
                     StringUtils.showLog(bean.getRes());
+                    break;
+                case NetCartion.GETSYSTEMTIMEBACK://系统返回系统时间的接口的返回
+                    //系统时间返回成功后进行时间的
+                    String date = JsonUtils.getJsonKey(bean.getRes(),"Message");
+                    ElectronicApplication.getmIntent().timeMulis = DateTimeUtil.getCurFormat2Millis("MM/dd/yyyy HH:mm:ss",date);
+                    break;
+                case NetCartion.POSTCARDIDMSG_BACK :
+                    //签到结果的返回，主要用于更新数据库和签到界面并通知主界面
+                    String data = bean.getRes();
+                    String state = JsonUtils.getJsonKey(data,"Status");
+                    String message = JsonUtils.getJsonKey(data,"Message");
+                    if(state.equals("1")){
+                        if(message != null &&message.equals("Start")){//老师刷卡
+
+                        }else{//学生刷卡
+
+                        }
+                    }else{
+                        StringUtils.showToast(message);
+                    }
                     break;
             }
         }else if(bean.getResCode() == NetCartion.FIAL){
@@ -250,18 +286,24 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void mainMsgEvent(MessageBean bean){
         switch (bean.getMsgCode()){
-            case Catition.SETTINGLIANGDU ://设置屏幕的亮度
-                serial.writeHex("060101"+bean.getMsgs()+"05FF");
+//            case Catition.SETTINGLIANGDU ://设置屏幕的亮度
+//                serial.writeHex("060101"+bean.getMsgs()+"05FF");
+//                break;
+            case Catition.MENUSETTING:
+            case Catition.UPSETTING:
+            case Catition.DOWNSETTING:
+            case Catition.OKSETTING:
+                serial.writeHex(bean.getMsgs());
                 break;
             case Catition.UPDATECLASS:
                 //更新主页课表信息
-                ScheduleBean scheduleBean = bean.getBean();
-                tv_course.setText(scheduleBean.getCourse());
-                tv_class_time_start.setText(scheduleBean.get_starttime());
-                tv_class_time_end.setText(scheduleBean.get_endtime());
-                tv_class.setText(scheduleBean.get_c_id());
-                tv_teacher.setText(scheduleBean.getTeacherName());
-                main_AllNum_tv.setText(scheduleBean.getQuantity());
+//                ScheduleBean scheduleBean = bean.getBean();
+//                tv_course.setText(scheduleBean.getCourse());
+//                tv_class_time_start.setText(scheduleBean.get_starttime());
+//                tv_class_time_end.setText(scheduleBean.get_endtime());
+//                tv_class.setText(scheduleBean.get_c_id());
+//                tv_teacher.setText(scheduleBean.getTeacherName());
+//                main_AllNum_tv.setText(scheduleBean.getQuantity());
                 break;
             case Catition.UPDATECARDID :
                 //更新主界面的签到信息
@@ -315,7 +357,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         }
     }
 
-    //刷新首日期和时间
+    //刷新首页日期和时间
     private Handler handler = new Handler();
     Runnable mRunnable = new Runnable() {
         @Override
@@ -328,21 +370,20 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
             }
             tv_sys_time.setText(timeArr[1]);
             tv_date.setText(timeArr[0] + " " + timeArr[2]);
-//            getNetMsg++;
-//            if(getNetMsg == 600 ) {//5分钟
-//                getNetMsg = 0;
-                //获取课表
-//                Connection.getSchedule(ComUtils.getMac(), DateTimeUtil.delete0("yyyy/MM/dd"), NetCartion.GETSCHEDULE_BACK);
-////                Connection.getSchedule(ComUtils.getMac(),"2017/5/24", NetCartion.GETSCHEDULE_BACK);
-//                //循环跟新介绍和公告（去介绍和公告界面接受）
-//                Connection.getIntrAndNotice(NetCartion.GETINTROANDNOTICE_BACK);
-//                //查询首页信息
-//                Connection.getHomePager(NetCartion.GETHOMEPAGER_BACK);
-//            }
-//            Connection.getTestMsg(Catition.TESTBACK);
             handler.postDelayed(mRunnable,1000);
         }
     };
+
+    //进行一些自动的访问接口
+    private Handler ziHandler = new Handler();
+    Runnable ziRunnable = new Runnable() {
+        @Override
+        public void run() {
+            StringUtils.showLog("查询一次");
+            ziHandler.postDelayed(ziRunnable,35000);
+        }
+    };
+
 
     @Override
     protected void onDestroy() {

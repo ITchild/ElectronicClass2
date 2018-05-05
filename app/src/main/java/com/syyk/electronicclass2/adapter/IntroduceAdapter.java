@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.syyk.electronicclass2.R;
+import com.syyk.electronicclass2.httpcon.NetCartion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +59,7 @@ public class IntroduceAdapter extends RecyclerView.Adapter<IntroduceAdapter.MyVi
             //搞事情
             holder.itemintroduce_image_iv.setVisibility(View.VISIBLE);
             holder.itemintroduce_con_tv.setVisibility(View.GONE);
-            ImageLoader.getInstance().displayImage(data.get(position), holder.itemintroduce_image_iv);
+            ImageLoader.getInstance().displayImage(NetCartion.hip+data.get(position), holder.itemintroduce_image_iv);
         }
     }
 

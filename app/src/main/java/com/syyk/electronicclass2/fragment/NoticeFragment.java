@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.syyk.electronicclass2.ElectronicApplication;
 import com.syyk.electronicclass2.R;
 import com.syyk.electronicclass2.adapter.IntroduceAdapter;
 import com.syyk.electronicclass2.adapter.NoticeAdapter;
@@ -22,6 +23,9 @@ import com.syyk.electronicclass2.bean.IntroAndNoticeBean;
 import com.syyk.electronicclass2.httpcon.Connection;
 import com.syyk.electronicclass2.httpcon.HttpEventBean;
 import com.syyk.electronicclass2.httpcon.NetCartion;
+import com.syyk.electronicclass2.utils.ComUtils;
+import com.syyk.electronicclass2.utils.DateTimeUtil;
+import com.syyk.electronicclass2.utils.JsonUtils;
 import com.syyk.electronicclass2.utils.StringUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -72,29 +76,42 @@ public class NoticeFragment extends Fragment {
         notice_dis_rv.setLayoutManager(new LinearLayoutManager(getContext()));
         notice_dis_rv.setAdapter(noticeAdapter);
 
-        //连接网络获取公告和介绍
-//        Connection.getIntrAndNotice(NetCartion.GETINTROANDNOTICE_BACK);
+    }
+
+    @Override
+    public void onResume() {
+        //连接网络获取公告
+        String mac = ComUtils.getSave("mac");
+        if(null != mac){
+            Connection.getNotice(mac,NetCartion.GETNOTICE_BACK);
+        }
+        super.onResume();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void noticeEvent(HttpEventBean bean){
         if(bean.getResCode() == NetCartion.SUCCESS){
             switch(bean.getBackCode()){
-                case NetCartion.GETINTROANDNOTICE_BACK :
+                case NetCartion.GETNOTICE_BACK :
                     String josnString =  bean.getRes();
-                    StringUtils.showLog(josnString);
-                    IntroAndNoticeBean introAndNoticeBean = JSON.parseObject(josnString, IntroAndNoticeBean.class);
-                    if(!isUpDate.equals(introAndNoticeBean.getDatetime())){
-                        isUpDate = introAndNoticeBean.getDatetime();
+                    String state = JsonUtils.getJsonKey(josnString,"Status");
+                    if(state.equals("1")) {
+                        josnString = JsonUtils.getJsonObject(josnString,"Model");
+                        String introduce = JsonUtils.getJsonKey(josnString, "Introduce");
+                        List<IntroAndNoticeBean> introAndNotices = JSON.parseArray(JsonUtils.getJsonArr(josnString, "Files")
+                                .toString(), IntroAndNoticeBean.class);
+                        ElectronicApplication.getmIntent().timeMulis = DateTimeUtil.
+                                getCurFormat2Millis("MM/dd/yyyy HH:mm:ss", JsonUtils.getJsonKey(josnString, "Time"));
                         imageData.clear();
-                        noticeAdapter.setSize(introAndNoticeBean.getFontType());
-                        addList(introAndNoticeBean.getNoticeMessage());
-                        addList(introAndNoticeBean.getNoticeImg1());
-                        addList(introAndNoticeBean.getNoticeImg2());
-                        addList(introAndNoticeBean.getNoticeImg3());
+                        addList(introduce);
+                        for(IntroAndNoticeBean bean1 : introAndNotices){
+                            addList(bean1.getPath());
+                        }
                         noticeAdapter.setData(imageData);
                         notice_load_pb.setVisibility(View.GONE);
                         notice_dis_rv.setVisibility(View.VISIBLE);
+                    }else{
+                        StringUtils.showToast(JsonUtils.getJsonKey(josnString,"Message"));
                     }
                     break;
             }

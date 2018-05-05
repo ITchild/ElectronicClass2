@@ -6,22 +6,22 @@ package com.syyk.electronicclass2.bean;
 
 public class ClassRoomBean {
 
-    private String _classroomname ;
-    private int _id;
+    private String Name ;
+    private int Id;
 
-    public String get_classroomname() {
-        return _classroomname;
+    public String getName() {
+        return Name;
     }
 
-    public void set_classroomname(String _classroomname) {
-        this._classroomname = _classroomname;
+    public void setName(String name) {
+        Name = name;
     }
 
-    public int get_id() {
-        return _id;
+    public int getId() {
+        return Id;
     }
 
-    public void set_id(int _id) {
-        this._id = _id;
+    public void setId(int id) {
+        Id = id;
     }
 }

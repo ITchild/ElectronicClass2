@@ -5,67 +5,113 @@ package com.syyk.electronicclass2.bean;
  */
 
 public class ScheduleBean {
-    private String _number;//第几节课
-    private String _starttime;//开始时间
-    private String _endtime;//结束时间
-    private String course;//课程名字
-    private String teacherName;//教室名字
-    private String _c_id;//上课班级
-    private String quantity;//课程人数
+    private int SyllabusId;//课程ID
+    private String ClassRoomName;
+    private String TeacherName;//教师名字
+    private String CategoryName;//课程名称
+    private String StartTime;//课程开始的时间
+    private String EndTime;//课程结束时间
+    private String Students;//学生总数
+    private String Attendens;//签到人数
+    private String Late;//迟到人数
+    private String ClassName;//班级名称
+    private String SysTime;//系统时间
+    private int LessonNum;//课程编号
 
-    public String get_number() {
-        return _number;
+
+    public int getSyllabusId() {
+        return SyllabusId;
     }
 
-    public void set_number(String _number) {
-        this._number = _number;
+    public void setSyllabusId(int syllabusId) {
+        SyllabusId = syllabusId;
     }
 
-    public String get_starttime() {
-        return _starttime;
+    public String getClassRoomName() {
+        return ClassRoomName;
     }
 
-    public void set_starttime(String _starttime) {
-        this._starttime = _starttime;
-    }
-
-    public String get_endtime() {
-        return _endtime;
-    }
-
-    public void set_endtime(String _endtime) {
-        this._endtime = _endtime;
-    }
-
-    public String getCourse() {
-        return course;
-    }
-
-    public void setCourse(String course) {
-        this.course = course;
+    public void setClassRoomName(String classRoomName) {
+        ClassRoomName = classRoomName;
     }
 
     public String getTeacherName() {
-        return teacherName;
+        return TeacherName;
     }
 
     public void setTeacherName(String teacherName) {
-        this.teacherName = teacherName;
+        TeacherName = teacherName;
     }
 
-    public String get_c_id() {
-        return _c_id;
+    public String getCategoryName() {
+        return CategoryName;
     }
 
-    public void set_c_id(String _c_id) {
-        this._c_id = _c_id;
+    public void setCategoryName(String categoryName) {
+        CategoryName = categoryName;
     }
 
-    public String getQuantity() {
-        return quantity;
+    public String getStartTime() {
+        return StartTime;
     }
 
-    public void setQuantity(String quantity) {
-        this.quantity = quantity;
+    public void setStartTime(String startTime) {
+        StartTime = startTime;
+    }
+
+    public String getEndTime() {
+        return EndTime;
+    }
+
+    public void setEndTime(String endTime) {
+        EndTime = endTime;
+    }
+
+    public String getStudents() {
+        return Students;
+    }
+
+    public void setStudents(String students) {
+        Students = students;
+    }
+
+    public String getAttendens() {
+        return Attendens;
+    }
+
+    public void setAttendens(String attendens) {
+        Attendens = attendens;
+    }
+
+    public String getLate() {
+        return Late;
+    }
+
+    public void setLate(String late) {
+        Late = late;
+    }
+
+    public String getClassName() {
+        return ClassName;
+    }
+
+    public void setClassName(String className) {
+        ClassName = className;
+    }
+
+    public String getSysTime() {
+        return SysTime;
+    }
+
+    public void setSysTime(String sysTime) {
+        SysTime = sysTime;
+    }
+
+    public int getLessonNum() {
+        return LessonNum;
+    }
+
+    public void setLessonNum(int lessonNum) {
+        LessonNum = lessonNum;
     }
 }

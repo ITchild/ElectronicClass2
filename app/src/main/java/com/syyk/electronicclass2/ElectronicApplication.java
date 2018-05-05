@@ -23,6 +23,8 @@ public class ElectronicApplication extends Application {
     private long mloginHandle;
     private String Mac = null;
 
+    public String SyllabusId;
+
     public long timeMulis = 0;
 
     @Override

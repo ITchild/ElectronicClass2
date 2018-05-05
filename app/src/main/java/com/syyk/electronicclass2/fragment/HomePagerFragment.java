@@ -27,6 +27,8 @@ import com.syyk.electronicclass2.httpcon.HttpEventBean;
 import com.syyk.electronicclass2.httpcon.NetCartion;
 import com.syyk.electronicclass2.service.DownConfig;
 import com.syyk.electronicclass2.service.DownService;
+import com.syyk.electronicclass2.utils.ComUtils;
+import com.syyk.electronicclass2.utils.JsonUtils;
 import com.syyk.electronicclass2.utils.StringUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -99,24 +101,26 @@ public class HomePagerFragment extends Fragment {
                 return true;
             }
         });
-
-        Connection.getHomePager(NetCartion.GETHOMEPAGER_BACK);
+        String mac = ComUtils.getSave("mac");
+        if(null != mac){
+            Connection.getHomePager(mac,NetCartion.GETHOMEPAGER_BACK);
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void homePagerEvent(HttpEventBean bean){
         if(bean.getResCode() == NetCartion.SUCCESS){
             switch(bean.getBackCode()){
-                case NetCartion.GETHOMEPAGER_BACK :
+                case NetCartion.GETHOMEPAGER_BACK ://获取首页的视频的下载链接
                     String josnString = bean.getRes();
-                    StringUtils.showLog(josnString);
-                    HomePagerBean homePagerBean = JSON.parseObject(josnString, HomePagerBean.class);
+                    HomePagerBean homePagerBean = JSON.parseObject(JsonUtils.getJsonObject(josnString,"Model"),HomePagerBean.class);
+
                     SharedPreferences preferences = getContext().getSharedPreferences("home",0);
-                    if(!preferences.getString("time","").equals(homePagerBean.get_datetime())){
-                        //存储时间
-                        DownConfig.url = homePagerBean.get_mainpageurl();
+                    if(!preferences.getString("time","").equals(homePagerBean.getFile())){
+//                        //存储时间
+                        DownConfig.url = NetCartion.hip+homePagerBean.getFile();
                         SharedPreferences.Editor editor = preferences.edit();
-                        editor.putString("time",homePagerBean.get_datetime());
+                        editor.putString("time",homePagerBean.getFile());
                         editor.commit();
                         //启动下载
                         startDown();

@@ -49,7 +49,7 @@ public class BondClassAdapter extends RecyclerView.Adapter<BondClassAdapter.MyVi
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, final int position) {
-        holder.itemclass_name_tv.setText(data.get(position).get_classroomname());
+        holder.itemclass_name_tv.setText(data.get(position).getName());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

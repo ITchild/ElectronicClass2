@@ -26,6 +26,7 @@ import com.syyk.electronicclass2.httpcon.NetCartion;
 import com.syyk.electronicclass2.utils.Catition;
 import com.syyk.electronicclass2.utils.ComUtils;
 import com.syyk.electronicclass2.utils.DateTimeUtil;
+import com.syyk.electronicclass2.utils.JsonUtils;
 import com.syyk.electronicclass2.utils.StringUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -55,6 +56,8 @@ public class ScheduleFragment extends Fragment {
     RecyclerView schedule_dis_rv;
 
 
+    private List<ScheduleBean> toDayData = new ArrayList<>();
+    private List<ScheduleBean> noDayData = new ArrayList<>();
     private List<ScheduleBean> data = new ArrayList<>();
     private ScheduleAdapter scheduleAdapter;
 
@@ -88,14 +91,13 @@ public class ScheduleFragment extends Fragment {
         schedule_week_tv.setText("周六");
 
         calendarDialog = new CalendarDialog(getContext());
-        //先获取一次课表
-//        Connection.getSchedule(ComUtils.getMac(), DateTimeUtil.delete0("yyyy/MM/dd"), NetCartion.GETSCHEDULE_BACK);
-        Connection.getSchedule(ComUtils.getMac(),"2017/5/24", NetCartion.GETSCHEDULE_BACK);
-
+        //获取当天的课程信息
+        String mac = ComUtils.getSave("mac");
+        if(mac != null) {
+            Connection.getSchedule(mac, NetCartion.GETTODAYSCHEDULE_BACK);
+        }
         //开始课表的轮询
         new Thread(mRunable).start();
-
-
 
         calendarDialog.setOnDateBack(new GetCalendarDateCall() {
             @Override
@@ -112,6 +114,10 @@ public class ScheduleFragment extends Fragment {
             case R.id.schedule_today_bt ://回到今天
                 break;
             case R.id.schedule_dateQ_iv ://日历前
+                String mac = ComUtils.getSave("mac");
+                if(mac != null) {
+                    Connection.getNoDaySchedule(mac,"2018/05/05",NetCartion.GETNODAYSCHEDULE_BACK);
+                }
                 break;
             case R.id.schedule_dateH_iv ://日历后
                 break;
@@ -127,11 +133,31 @@ public class ScheduleFragment extends Fragment {
     public void scheduleEvent(HttpEventBean bean){
         if(bean.getResCode() == NetCartion.SUCCESS){
             switch (bean.getBackCode()){
-                case NetCartion.GETSCHEDULE_BACK :
-                    String resData = bean.getRes();
-                    StringUtils.showLog(resData);
-                    data = JSON.parseArray(resData,ScheduleBean.class);
-                    scheduleAdapter.setData(data);
+                case NetCartion.GETTODAYSCHEDULE_BACK :
+                    String toDayResData = bean.getRes();
+                    String toDayState = JsonUtils.getJsonKey(toDayResData,"Status");
+                    if(toDayState.equals("1")){
+                        toDayData = JSON.parseArray(JsonUtils.getJsonArr(toDayResData,"Model")
+                                .toString(),ScheduleBean.class);
+                        data.clear();
+                        data.addAll(toDayData);
+                        scheduleAdapter.setData(data);
+                    }else{
+                        StringUtils.showToast(JsonUtils.getJsonKey(toDayResData,"Message"));
+                    }
+                    break;
+                case NetCartion.GETNODAYSCHEDULE_BACK :
+                    String noDayResData = bean.getRes();
+                    String noDayState = JsonUtils.getJsonKey(noDayResData,"Status");
+                    if(noDayState.equals("1")){
+                        noDayData = JSON.parseArray(JsonUtils.getJsonArr(noDayResData,"Model")
+                                .toString(),ScheduleBean.class);
+                        data.clear();
+                        data.addAll(noDayData);
+                        scheduleAdapter.setData(data);
+                    }else{
+                        StringUtils.showToast(JsonUtils.getJsonKey(noDayResData,"Message"));
+                    }
                     break;
             }
         }else if(bean.getResCode() == NetCartion.FIAL){
@@ -139,37 +165,48 @@ public class ScheduleFragment extends Fragment {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void scheduleMsgEvent(MessageBean messageBean){
+        if(messageBean.getMsgCode() == Catition.BINGCLASSROOM_SUCCESS){
+            //如果绑定教室成功，获取课表
+            String mac = ComUtils.getSave("mac");
+            if(mac != null) {
+                Connection.getSchedule(mac, NetCartion.GETTODAYSCHEDULE_BACK);
+            }
+        }
+    }
+
     private Handler handler = new Handler();
     private Runnable mRunable = new Runnable() {
         @Override
         public void run() {
-            String date = DateTimeUtil.getCurFormatTime("HH:mm");
-            long datel = DateTimeUtil.getFarmatTime("HH:mm",date);
-            if(data != null){
-                MessageBean bean = new MessageBean();
-                for (int i=0;i<data.size();i++){
-                    String startDate = data.get(i).get_starttime();
-                    long startDatel = DateTimeUtil.getFarmatTime("HH:mm",startDate);
-                    String endDate = data.get(i).get_endtime();
-                    long endDatel = DateTimeUtil.getFarmatTime("HH:mm",endDate);
-                    if(datel+300 >= startDatel && datel<startDatel){
-                        //更新主界面的课程信息
-                        bean.setMsgCode(Catition.UPDATECLASS);
-                        bean.setBean(data.get(i));
-                        EventBus.getDefault().post(bean);
-                    }else if(datel>= startDatel && datel <= endDatel){
-                        //更新主界面的课程信息
-                        bean.setMsgCode(Catition.UPDATECLASS);
-                        bean.setBean(data.get(i));
-                        EventBus.getDefault().post(bean);
-                    }
-                    if(endDatel == datel){
-                        //每节课结束删除签到信息
-                        bean.setMsgCode(Catition.DELETECARDID);
-                        EventBus.getDefault().post(bean);
-                    }
-                }
-            }
+//            String date = DateTimeUtil.getCurFormatTime("HH:mm");
+//            long datel = DateTimeUtil.getFarmatTime("HH:mm",date);
+//            if(data != null){
+//                MessageBean bean = new MessageBean();
+//                for (int i=0;i<data.size();i++){
+//                    String startDate = data.get(i).get_starttime();
+//                    long startDatel = DateTimeUtil.getFarmatTime("HH:mm",startDate);
+//                    String endDate = data.get(i).get_endtime();
+//                    long endDatel = DateTimeUtil.getFarmatTime("HH:mm",endDate);
+//                    if(datel+300 >= startDatel && datel<startDatel){
+//                        //更新主界面的课程信息
+//                        bean.setMsgCode(Catition.UPDATECLASS);
+//                        bean.setBean(data.get(i));
+//                        EventBus.getDefault().post(bean);
+//                    }else if(datel>= startDatel && datel <= endDatel){
+//                        //更新主界面的课程信息
+//                        bean.setMsgCode(Catition.UPDATECLASS);
+//                        bean.setBean(data.get(i));
+//                        EventBus.getDefault().post(bean);
+//                    }
+//                    if(endDatel == datel){
+//                        //每节课结束删除签到信息
+//                        bean.setMsgCode(Catition.DELETECARDID);
+//                        EventBus.getDefault().post(bean);
+//                    }
+//                }
+//            }
             handler.postDelayed(mRunable,60000);
         }
     };

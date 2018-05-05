@@ -17,6 +17,7 @@ import com.syyk.electronicclass2.adapter.AttenAdapter;
 import com.syyk.electronicclass2.bean.AttenBean;
 import com.syyk.electronicclass2.bean.IntroAndNoticeBean;
 import com.syyk.electronicclass2.bean.MessageBean;
+import com.syyk.electronicclass2.bean.ScheduleBean;
 import com.syyk.electronicclass2.database.RCDBHelper;
 import com.syyk.electronicclass2.dialog.CalendarDialog;
 import com.syyk.electronicclass2.dialog.backcall.GetCalendarDateCall;
@@ -26,6 +27,7 @@ import com.syyk.electronicclass2.httpcon.NetCartion;
 import com.syyk.electronicclass2.utils.Catition;
 import com.syyk.electronicclass2.utils.ComUtils;
 import com.syyk.electronicclass2.utils.DateTimeUtil;
+import com.syyk.electronicclass2.utils.JsonUtils;
 import com.syyk.electronicclass2.utils.StringUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -53,8 +55,8 @@ public class AttendanceFragmnet extends Fragment{
     RecyclerView attendance_rc;
 
     private RCDBHelper db ;
-    private List<AttenBean> attenDatas = new ArrayList<>();
-    private List<AttenBean> postDatas = new ArrayList<>();
+    private List<ScheduleBean> attenDatas = new ArrayList<>();
+    private List<ScheduleBean> postDatas = new ArrayList<>();
 
     private AttenAdapter attenAdapter;
 
@@ -86,7 +88,7 @@ public class AttendanceFragmnet extends Fragment{
 
         calendarDialog = new CalendarDialog(getContext());
         dataS = DateTimeUtil.getCurDate("yyyy-MM-dd");
-        initData();
+//        initData();
 
         attendance_date_tv.setText("2016年01月01日");
         attendance_week_tv.setText("周六");
@@ -98,11 +100,18 @@ public class AttendanceFragmnet extends Fragment{
                 StringUtils.showLog(dataS);
             }
         });
+
+        //获取当天的课程信息
+        String mac = ComUtils.getSave("mac");
+        if(mac != null) {
+            //课程和考勤都在一起
+            Connection.getSchedule(mac, NetCartion.GETTOATTENDANC_BACK);
+        }
     }
 
     private void initData(){
-        attenDatas = db.getAllCardId();
-        attenAdapter.setData(attenDatas);
+//        attenDatas = db.getAllCardId();
+//        attenAdapter.setData(attenDatas);
     }
 
     @OnClick({R.id.attendance_today_bt,R.id.attendance_dateQ_iv,R.id.attendance_dateH_iv,R.id.attendance_date_iv})
@@ -125,9 +134,9 @@ public class AttendanceFragmnet extends Fragment{
     public void attendanceEvnt(MessageBean bean){
         switch (bean.getMsgCode()){
             case Catition.DELETECARDID :
-                //定期删除本地签到信息
-                db.deleteAllCardId();
-                initData();
+//                //定期删除本地签到信息
+//                db.deleteAllCardId();
+//                initData();
                 break;
         }
     }
@@ -136,24 +145,26 @@ public class AttendanceFragmnet extends Fragment{
     public void AttenEvent(HttpEventBean bean){
         if(bean.getResCode() == NetCartion.SUCCESS){
             switch(bean.getBackCode()){
-                case NetCartion.POSTCARDIDMSG_BACK :
-                    //签到结果的返回，主要用于更新数据库和签到界面并通知主界面
-                    String data = bean.getRes();
-                    StringUtils.showLog(data);
-                    if(data.contains("卡号不存在")){
-                        StringUtils.showCenterToast(data);
-                        return;
+                case NetCartion.GETTOATTENDANC_BACK://获取当天的考勤信息
+                    String toDayResData = bean.getRes();
+                    String toDayState = JsonUtils.getJsonKey(toDayResData,"Status");
+                    if(toDayState.equals("1")){
+                        attenDatas = JSON.parseArray(JsonUtils.getJsonArr(toDayResData,"Model")
+                                .toString(),ScheduleBean.class);
+                        attenAdapter.setData(attenDatas);
+                    }else{
+                        StringUtils.showToast(JsonUtils.getJsonKey(toDayResData,"Message"));
                     }
-                    AttenBean attenBean = JSON.parseObject(data,AttenBean.class);
-                    if(attenBean != null) {
-                        db.saveCardId(attenBean);
-                        StringUtils.showCenterToast("签到成功！！！");
-                        initData();
-                        MessageBean msgBean = new MessageBean();
-                        msgBean.setMsgCode(Catition.UPDATECARDID);
-                        msgBean.setMsgs(attenBean.getName());
-                        msgBean.setMsgi(attenDatas.size());
-                        EventBus.getDefault().post(msgBean);
+                    break;
+                case NetCartion.GETNODAYATTENDANC_BACK ://获取非当天的考勤信息
+                    String noDayResData = bean.getRes();
+                    String noDayState = JsonUtils.getJsonKey(noDayResData,"Status");
+                    if(noDayState.equals("1")){
+                        attenDatas = JSON.parseArray(JsonUtils.getJsonArr(noDayResData,"Model")
+                                .toString(),ScheduleBean.class);
+                        attenAdapter.setData(attenDatas);
+                    }else{
+                        StringUtils.showToast(JsonUtils.getJsonKey(noDayResData,"Message"));
                     }
                     break;
             }

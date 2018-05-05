@@ -24,42 +24,127 @@
             android:id="@+id/setting_ClassRoom_bt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
             android:text="绑定教室"
             android:textColor="@color/black" />
         <Button
             android:id="@+id/setting_UpDate_bt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
             android:text="检查更新"
             android:textColor="@color/black" />
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dip"
-            android:text="屏幕亮度调节"
-            android:textColor="@color/white" />
+            android:orientation="horizontal">
 
-        <RelativeLayout
+            <Button
+                android:id="@+id/setting_menu_bt"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:text="菜单/确认"/>
+            <Button
+                android:id="@+id/setting_up_bt"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:text="上翻"/>
+            <Button
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:visibility="invisible"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:text="下翻"/>
+            <Button
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:visibility="invisible"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:text="返回"/>
+
+        </LinearLayout>
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dip">
-            <TextView
-                android:id="@+id/setting_change_tv"
-                android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/setting_Ok_bt"
+                android:layout_width="0dip"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/setting_change_sb"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="5dip"
-                android:text="0"
-                android:textColor="@color/black" />
-            <SeekBar
-                android:id="@+id/setting_change_sb"
-                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:text="返回"/>
+
+            <Button
+                android:id="@+id/setting_down_bt"
+                android:layout_width="0dip"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:thumb="@drawable/seekbar_thumb"
-                android:max="100" />
-        </RelativeLayout>
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:text="下翻"/>
+
+            <Button
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:visibility="invisible"
+                android:textColor="@color/black"
+                android:text="菜单/确认"/>
+            <Button
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:visibility="invisible"
+                android:textColor="@color/black"
+                android:text="上翻"/>
+
+        </LinearLayout>
+
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginTop="10dip"-->
+            <!--android:text="屏幕亮度调节"-->
+            <!--android:textColor="@color/white" />-->
+
+        <!--<RelativeLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="50dip">-->
+            <!--<TextView-->
+                <!--android:id="@+id/setting_change_tv"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_above="@+id/setting_change_sb"-->
+                <!--android:layout_alignParentRight="true"-->
+                <!--android:layout_marginRight="5dip"-->
+                <!--android:text="0"-->
+                <!--android:textColor="@color/black" />-->
+            <!--<SeekBar-->
+                <!--android:id="@+id/setting_change_sb"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_alignParentBottom="true"-->
+                <!--android:thumb="@drawable/seekbar_thumb"-->
+                <!--android:max="100" />-->
+        <!--</RelativeLayout>-->
 
     </LinearLayout>
 

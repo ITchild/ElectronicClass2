@@ -47,7 +47,13 @@ public class BondClassRoomDialog extends Dialog {
         window.setGravity(Gravity.CENTER); // 此处可以设置dialog显示的位置为居中
         setContentView(R.layout.item_bondclassroom);
         ButterKnife.bind(this);
-        setCanceledOnTouchOutside(false);// 点击Dialog外部消失
+        //进行界面的调整
+        WindowManager windowManager = ((Activity) context).getWindowManager();
+        Display display = windowManager.getDefaultDisplay();
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.height = display.getHeight()*9/10;
+        getWindow().setAttributes(lp);
+        setCanceledOnTouchOutside(true);// 点击Dialog外部消失
         setCancelable(true);
 
         bondClassAdapter = new BondClassAdapter(context,data);
