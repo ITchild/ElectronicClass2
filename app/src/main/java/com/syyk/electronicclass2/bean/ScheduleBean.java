@@ -8,6 +8,9 @@ public class ScheduleBean {
     private int SyllabusId;//课程ID
     private String ClassRoomName;
     private String TeacherName;//教师名字
+    private String TeacherPhone;//教室电话
+    private String AdminName;//安全员名称
+    private String AdminPhone;//安全员电话
     private String CategoryName;//课程名称
     private String StartTime;//课程开始的时间
     private String EndTime;//课程结束时间
@@ -41,6 +44,30 @@ public class ScheduleBean {
 
     public void setTeacherName(String teacherName) {
         TeacherName = teacherName;
+    }
+
+    public String getTeacherPhone() {
+        return TeacherPhone;
+    }
+
+    public void setTeacherPhone(String teacherPhone) {
+        TeacherPhone = teacherPhone;
+    }
+
+    public String getAdminName() {
+        return AdminName;
+    }
+
+    public void setAdminName(String adminName) {
+        AdminName = adminName;
+    }
+
+    public String getAdminPhone() {
+        return AdminPhone;
+    }
+
+    public void setAdminPhone(String adminPhone) {
+        AdminPhone = adminPhone;
     }
 
     public String getCategoryName() {

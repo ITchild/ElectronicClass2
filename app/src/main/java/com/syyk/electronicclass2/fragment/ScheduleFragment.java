@@ -14,11 +14,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
+import com.syyk.electronicclass2.ElectronicApplication;
 import com.syyk.electronicclass2.R;
 import com.syyk.electronicclass2.adapter.ScheduleAdapter;
 import com.syyk.electronicclass2.bean.MessageBean;
 import com.syyk.electronicclass2.bean.ScheduleBean;
 import com.syyk.electronicclass2.dialog.CalendarDialog;
+import com.syyk.electronicclass2.dialog.LoadingDialog;
 import com.syyk.electronicclass2.dialog.backcall.GetCalendarDateCall;
 import com.syyk.electronicclass2.httpcon.Connection;
 import com.syyk.electronicclass2.httpcon.HttpEventBean;
@@ -63,7 +65,8 @@ public class ScheduleFragment extends Fragment {
 
     private CalendarDialog calendarDialog;
 
-    private String dataS;
+    private LoadingDialog loadingDialog;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,8 +76,8 @@ public class ScheduleFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_schedule,container,false);
-        ButterKnife.bind(this,view);
+        View view = inflater.inflate(R.layout.fragment_schedule, container, false);
+        ButterKnife.bind(this, view);
         EventBus.getDefault().register(this);
         return view;
     }
@@ -83,133 +86,126 @@ public class ScheduleFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        scheduleAdapter = new ScheduleAdapter(getContext(),data);
+        scheduleAdapter = new ScheduleAdapter(getContext(), data);
         schedule_dis_rv.setLayoutManager(new LinearLayoutManager(getContext()));
         schedule_dis_rv.setAdapter(scheduleAdapter);
 
-        schedule_date_tv.setText("2016年01月01日");
+        schedule_date_tv.setText("2016-01-01");
         schedule_week_tv.setText("周六");
 
         calendarDialog = new CalendarDialog(getContext());
-        //获取当天的课程信息
-        String mac = ComUtils.getSave("mac");
-        if(mac != null) {
-            Connection.getSchedule(mac, NetCartion.GETTODAYSCHEDULE_BACK);
-        }
-        //开始课表的轮询
-        new Thread(mRunable).start();
 
         calendarDialog.setOnDateBack(new GetCalendarDateCall() {
             @Override
             public void getDateString(String dateString) {
-                dataS = dateString;
-                StringUtils.showLog(dataS);
-            }
-        });
-    }
-
-    @OnClick({R.id.schedule_today_bt,R.id.schedule_dateQ_iv,R.id.schedule_dateH_iv,R.id.schedule_date_iv})
-    public void scheduleOnClick(View view){
-        switch (view.getId()){
-            case R.id.schedule_today_bt ://回到今天
-                break;
-            case R.id.schedule_dateQ_iv ://日历前
+                schedule_date_tv.setText(dateString);
+                schedule_week_tv.setText(DateTimeUtil.getCurFormatWeek("yyyy-MM-dd",dateString));
+                StringUtils.showLog(dateString);
                 String mac = ComUtils.getSave("mac");
                 if(mac != null) {
-                    Connection.getNoDaySchedule(mac,"2018/05/05",NetCartion.GETNODAYSCHEDULE_BACK);
+                    Connection.getNoDaySchedule(mac,dateString, NetCartion.GETNODAYSCHEDULE_BACK);
+                }
+            }
+        });
+
+        loadingDialog = new LoadingDialog(getContext(),"请稍等...");
+    }
+
+    @OnClick({R.id.schedule_today_bt, R.id.schedule_dateQ_iv, R.id.schedule_dateH_iv, R.id.schedule_date_iv})
+    public void scheduleOnClick(View view) {
+        String mac = ComUtils.getSave("mac");
+        switch (view.getId()) {
+            case R.id.schedule_today_bt://回到今天
+                schedule_date_tv.setText(ElectronicApplication.getmIntent().date);
+                schedule_week_tv.setText(ElectronicApplication.getmIntent().week);
+                data.clear();
+                data.addAll(toDayData);
+                scheduleAdapter.setData(data);
+                break;
+            case R.id.schedule_dateQ_iv://日历前
+                schedule_date_tv.setText(DateTimeUtil.changeDate(schedule_date_tv.getText().toString(),-1));
+                schedule_week_tv.setText(DateTimeUtil.getCurFormatWeek("yyyy-MM-dd",schedule_date_tv.getText().toString()));
+                if(mac != null) {
+                    loadingDialog.show();
+                    Connection.getNoDaySchedule(mac,schedule_date_tv.getText().toString(), NetCartion.GETNODAYSCHEDULE_BACK);
                 }
                 break;
-            case R.id.schedule_dateH_iv ://日历后
+            case R.id.schedule_dateH_iv://日历后
+                schedule_date_tv.setText(DateTimeUtil.changeDate(schedule_date_tv.getText().toString(),1));
+                schedule_week_tv.setText(DateTimeUtil.getCurFormatWeek("yyyy-MM-dd",schedule_date_tv.getText().toString()));
+                if(mac != null) {
+                    loadingDialog.show();
+                    Connection.getNoDaySchedule(mac,schedule_date_tv.getText().toString(), NetCartion.GETNODAYSCHEDULE_BACK);
+                }
                 break;
-            case R.id.schedule_date_iv ://日历显示
+            case R.id.schedule_date_iv://日历显示
                 calendarDialog.show();
-                if(dataS != null)
-                calendarDialog.setDateS(dataS);
+                calendarDialog.setDateS(schedule_date_tv.getText().toString());
                 break;
         }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void scheduleEvent(HttpEventBean bean){
-        if(bean.getResCode() == NetCartion.SUCCESS){
-            switch (bean.getBackCode()){
-                case NetCartion.GETTODAYSCHEDULE_BACK :
+    public void scheduleEvent(HttpEventBean bean) {
+        if (bean.getResCode() == NetCartion.SUCCESS) {
+            switch (bean.getBackCode()) {
+                case NetCartion.GETTODAYSCHEDULE_BACK:
+                case NetCartion.GETTOATTENDANCANDSCHE_BACK:
+                    loadingDialog.cancel();
                     String toDayResData = bean.getRes();
-                    String toDayState = JsonUtils.getJsonKey(toDayResData,"Status");
-                    if(toDayState.equals("1")){
-                        toDayData = JSON.parseArray(JsonUtils.getJsonArr(toDayResData,"Model")
-                                .toString(),ScheduleBean.class);
+                    String toDayState = JsonUtils.getJsonKey(toDayResData, "Status");
+                    if (toDayState.equals("1")) {
+                        toDayData = JSON.parseArray(JsonUtils.getJsonArr(toDayResData, "Model")
+                                .toString(), ScheduleBean.class);
+                        ElectronicApplication.getmIntent().todaySchedule = toDayData;
                         data.clear();
                         data.addAll(toDayData);
-                        scheduleAdapter.setData(data);
-                    }else{
-                        StringUtils.showToast(JsonUtils.getJsonKey(toDayResData,"Message"));
+                        StringUtils.showLog("课表的节数：" + data.size());
+                        if(schedule_date_tv.getText().toString().equals(ElectronicApplication.getmIntent().date)) {
+                            scheduleAdapter.setData(data);
+                        }
+                    } else {
+                        StringUtils.showToast(JsonUtils.getJsonKey(toDayResData, "Message"));
                     }
                     break;
-                case NetCartion.GETNODAYSCHEDULE_BACK :
+                case NetCartion.GETNODAYSCHEDULE_BACK:
+                    loadingDialog.cancel();
                     String noDayResData = bean.getRes();
-                    String noDayState = JsonUtils.getJsonKey(noDayResData,"Status");
-                    if(noDayState.equals("1")){
-                        noDayData = JSON.parseArray(JsonUtils.getJsonArr(noDayResData,"Model")
-                                .toString(),ScheduleBean.class);
+                    String noDayState = JsonUtils.getJsonKey(noDayResData, "Status");
+                    if (noDayState.equals("1")) {
+                        noDayData = JSON.parseArray(JsonUtils.getJsonArr(noDayResData, "Model")
+                                .toString(), ScheduleBean.class);
                         data.clear();
                         data.addAll(noDayData);
                         scheduleAdapter.setData(data);
-                    }else{
-                        StringUtils.showToast(JsonUtils.getJsonKey(noDayResData,"Message"));
+                    } else {
+                        StringUtils.showToast(JsonUtils.getJsonKey(noDayResData, "Message"));
                     }
                     break;
             }
-        }else if(bean.getResCode() == NetCartion.FIAL){
+        } else if (bean.getResCode() == NetCartion.FIAL) {
+            loadingDialog.cancel();
             StringUtils.showToast(bean.getRes());
         }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void scheduleMsgEvent(MessageBean messageBean){
-        if(messageBean.getMsgCode() == Catition.BINGCLASSROOM_SUCCESS){
-            //如果绑定教室成功，获取课表
-            String mac = ComUtils.getSave("mac");
-            if(mac != null) {
-                Connection.getSchedule(mac, NetCartion.GETTODAYSCHEDULE_BACK);
-            }
+    public void scheduleMsgEvent(MessageBean messageBean) {
+        switch (messageBean.getMsgCode()) {
+            case Catition.BINGCLASSROOM_SUCCESS://如果绑定教室成功，获取课表
+            case Catition.GETTIME_SUCCESS_UPDATE://联网获取时间成功，获取课表
+                schedule_date_tv.setText(ElectronicApplication.getmIntent().date);
+                schedule_week_tv.setText(ElectronicApplication.getmIntent().week);
+                //获取当天的课程信息
+                String mac = ComUtils.getSave("mac");
+                if (mac != null) {
+                    Connection.getSchedule(mac, NetCartion.GETTODAYSCHEDULE_BACK);
+//                    Connection.getNoDaySchedule(mac,"2018/05/09",NetCartion.GETTODAYSCHEDULE_BACK);
+                }
+                break;
         }
     }
 
-    private Handler handler = new Handler();
-    private Runnable mRunable = new Runnable() {
-        @Override
-        public void run() {
-//            String date = DateTimeUtil.getCurFormatTime("HH:mm");
-//            long datel = DateTimeUtil.getFarmatTime("HH:mm",date);
-//            if(data != null){
-//                MessageBean bean = new MessageBean();
-//                for (int i=0;i<data.size();i++){
-//                    String startDate = data.get(i).get_starttime();
-//                    long startDatel = DateTimeUtil.getFarmatTime("HH:mm",startDate);
-//                    String endDate = data.get(i).get_endtime();
-//                    long endDatel = DateTimeUtil.getFarmatTime("HH:mm",endDate);
-//                    if(datel+300 >= startDatel && datel<startDatel){
-//                        //更新主界面的课程信息
-//                        bean.setMsgCode(Catition.UPDATECLASS);
-//                        bean.setBean(data.get(i));
-//                        EventBus.getDefault().post(bean);
-//                    }else if(datel>= startDatel && datel <= endDatel){
-//                        //更新主界面的课程信息
-//                        bean.setMsgCode(Catition.UPDATECLASS);
-//                        bean.setBean(data.get(i));
-//                        EventBus.getDefault().post(bean);
-//                    }
-//                    if(endDatel == datel){
-//                        //每节课结束删除签到信息
-//                        bean.setMsgCode(Catition.DELETECARDID);
-//                        EventBus.getDefault().post(bean);
-//                    }
-//                }
-//            }
-            handler.postDelayed(mRunable,60000);
-        }
-    };
 
     @Override
     public void onDestroy() {

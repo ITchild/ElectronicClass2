@@ -72,7 +72,7 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.MyView
     @Override
     public int getItemCount() {
         //每天都是8节课，+1为课表的表头
-        return 9;
+        return 5;
     }
 
 

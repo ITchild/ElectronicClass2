@@ -33,6 +33,12 @@ public class MainSettingDialog extends Dialog {
     EditText mainSetting_HIp_et;
     @BindView(R.id.mainSetting_HPort_et)
     EditText mainSetting_HPort_et;
+
+    @BindView(R.id.mainSetting_Voideip_et)
+    EditText mainSetting_Voideip_et;
+    @BindView(R.id.mainSetting_VoidePort_et)
+    EditText mainSetting_VoidePort_et;
+
     @BindView(R.id.mainSetting_VoideUser_et)
     EditText mainSetting_VoideUser_et;
     @BindView(R.id.mainSetting_VoidePass_et)
@@ -70,8 +76,11 @@ public class MainSettingDialog extends Dialog {
         mainSetting_ContorlPort_et.setText(preferences.getString("port","9000"));
         mainSetting_HIp_et.setText(preferences.getString("hIp","192.168.1.198"));
         mainSetting_HPort_et.setText(preferences.getString("hPort","1192"));
-//        mainSetting_VoideUser_et.setText(preferences.getString("vUser","admin"));
-//        mainSetting_VoidePass_et.setText(preferences.getString("vPass","admin"));
+
+        mainSetting_Voideip_et.setText(preferences.getString("vip","192.168.1.108"));
+        mainSetting_VoidePort_et.setText(preferences.getString("vport","554"));
+        mainSetting_VoideUser_et.setText(preferences.getString("vUser","admin"));
+        mainSetting_VoidePass_et.setText(preferences.getString("vPass","syyk8888"));
     }
 
     @OnClick({R.id.mainSetting_cancle_bt,R.id.mainSetting_ok_bt})
@@ -108,23 +117,36 @@ public class MainSettingDialog extends Dialog {
             StringUtils.showToast("请输入后台的端口");
             return;
         }
-//        String vuser = mainSetting_VoideUser_et.getText().toString();
-//        if(StringUtils.isEmpty(vuser)){
-//            StringUtils.showToast("请输入摄像机的用户名");
-//            return;
-//        }
-//        String vpass = mainSetting_VoidePass_et.getText().toString();
-//        if(StringUtils.isEmpty(vpass)){
-//            StringUtils.showToast("请输入摄像机的用户密码");
-//            return;
-//        }
+        String vip = mainSetting_Voideip_et.getText().toString();
+        if(StringUtils.isEmpty(vip)){
+            StringUtils.showToast("请输入实况的IP地址");
+            return;
+        }
+        String vport = mainSetting_VoidePort_et.getText().toString();
+        if(StringUtils.isEmpty(vport)){
+            StringUtils.showToast("请输入实况的端口号");
+            return;
+        }
+        String vuser = mainSetting_VoideUser_et.getText().toString();
+        if(StringUtils.isEmpty(vuser)){
+            StringUtils.showToast("请输入实况的用户名");
+            return;
+        }
+        String vpass = mainSetting_VoidePass_et.getText().toString();
+        if(StringUtils.isEmpty(vpass)){
+            StringUtils.showToast("请输入实况的用户密码");
+            return;
+        }
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("ip",ip);
         editor.putString("port",port);
         editor.putString("hIp",hip);
         editor.putString("hPort",hport);
-//        editor.putString("vUser",vuser);
-//        editor.putString("vPass",vpass);
+
+        editor.putString("vip",vip);
+        editor.putString("vport",vport);
+        editor.putString("vUser",vuser);
+        editor.putString("vPass",vpass);
         editor.commit();
     }
 

@@ -7,8 +7,7 @@ package com.syyk.electronicclass2.bean;
 public class AttenBean {
 
     private String Cardid ;
-    private String Datetime;
-    private String Name;
+    private String syllabusid;
 
 
     public String getCardid() {
@@ -19,19 +18,11 @@ public class AttenBean {
         Cardid = cardid;
     }
 
-    public String getDatetime() {
-        return Datetime;
+    public String getSyllabusid() {
+        return syllabusid;
     }
 
-    public void setDatetime(String datetime) {
-        Datetime = datetime;
-    }
-
-    public String getName() {
-        return Name;
-    }
-
-    public void setName(String name) {
-        Name = name;
+    public void setSyllabusid(String syllabusid) {
+        this.syllabusid = syllabusid;
     }
 }

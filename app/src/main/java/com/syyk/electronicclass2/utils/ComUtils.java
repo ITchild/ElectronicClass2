@@ -11,6 +11,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.RecyclerView;
 
 import com.syyk.electronicclass2.ElectronicApplication;
 
@@ -174,10 +175,14 @@ public class ComUtils {
                 return preferences.getString("hIp","192.168.1.198");
             case "hport" :
                 return preferences.getString("hPort","1192");
+            case "vip" :
+                return preferences.getString("vip","192.168.1.108");
+            case "vport" :
+                return preferences.getString("vport","554");
             case "vuser" :
                 return preferences.getString("vUser","admin");
             case "vpass" :
-                return preferences.getString("vPass","admin");
+                return preferences.getString("vPass","syyk8888");
         }
         return null;
     }
@@ -284,6 +289,20 @@ public class ComUtils {
             e.printStackTrace();
         }
         return localCode;
+    }
+
+    /**
+     * 判断RecyclerView时候滑动到底部
+     * @param recyclerView
+     * @return
+     */
+
+    public static boolean isSlideToBottom(RecyclerView recyclerView) {
+        if (recyclerView == null) return false;
+        if (recyclerView.computeVerticalScrollExtent() + recyclerView.computeVerticalScrollOffset()
+                >= recyclerView.computeVerticalScrollRange())
+            return true;
+        return false;
     }
 
 }

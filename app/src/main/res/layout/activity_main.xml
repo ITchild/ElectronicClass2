@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tool="http://schemas.android.com/apk/res-auto"
     android:id="@+id/dataBindingRootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="25dip"
+    android:paddingTop="25dip"
     android:background="@color/main_bg"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
     <RelativeLayout
+        android:id="@+id/mian_title_Rl"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="10dp"
@@ -23,21 +25,21 @@
             android:id="@+id/logo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/logo"
-            android:visibility="gone" />
+            android:src="@mipmap/logo" />
 
         <ImageView
+            android:id="@+id/school_name_iv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_toRightOf="@+id/logo"
-            android:src="@mipmap/school_title"
-            android:visibility="gone" />
+            android:src="@mipmap/school_title" />
 
         <TextView
             android:id="@+id/tv_school_name"
             style="@style/MainLayoutItemContentSytle"
             android:layout_marginLeft="10dp"
+            android:visibility="gone"
             android:textSize="30sp" />
 
         <TextView
@@ -48,8 +50,40 @@
             android:layout_marginLeft="20dp"
             android:textColor="@color/white"
             android:textSize="@dimen/main_title_size"
-            android:layout_toRightOf="@+id/tv_school_name"
-            android:text="" />
+            android:layout_toRightOf="@+id/school_name_iv"
+            tools:text="1.0.1" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/tv_building"
+            android:orientation="vertical"
+            android:layout_marginLeft="10dip">
+
+            <TextView
+                android:id="@+id/main_savePeo_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="0dip"
+                android:layout_weight="1"
+                android:layout_alignParentBottom="true"
+                android:layout_marginLeft="20dp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/main_title_size"
+                android:layout_toRightOf="@+id/school_name_iv"
+                android:text="安全员：" />
+            <TextView
+                android:id="@+id/main_savePeoPho_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="0dip"
+                android:layout_weight="1"
+                android:layout_alignParentBottom="true"
+                android:layout_marginLeft="20dp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/main_title_size"
+                android:layout_toRightOf="@+id/school_name_iv"
+                android:text="TEL：" />
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tv_room"
@@ -98,6 +132,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/main_right_ll"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
@@ -222,6 +257,23 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/MainLayoutItemContentSytle"
+                        android:text="教师电话：" />
+
+                    <TextView
+                        android:id="@+id/tv_teacherPhone"
+                        style="@style/MainLayoutItemContentSytle"
+                        android:text="" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
                     android:orientation="horizontal"
                     android:visibility="gone">
 
@@ -304,7 +356,8 @@
                     <ImageView
                         android:id="@+id/main_QR_iv"
                         android:layout_width="100dip"
-                        android:layout_height="100dip" />
+                        android:layout_height="100dip"
+                        android:src="@mipmap/noclass"/>
                     <ImageView
                         android:id="@+id/main_QRCentry_iv"
                         android:layout_width="25dip"
@@ -323,7 +376,6 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:visibility="gone"
                         android:layout_weight="1">
 
                         <TextView
@@ -441,7 +493,7 @@
             android:text="实况"
             android:textColor="@android:color/white"
             android:textSize="22sp"
-            android:visibility="gone" />
+           />
 
         <RadioButton
             android:id="@+id/rb_attendance"

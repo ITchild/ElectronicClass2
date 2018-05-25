@@ -1,28 +1,31 @@
 package com.syyk.electronicclass2.fragment;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.syyk.electronicclass2.ElectronicApplication;
 import com.syyk.electronicclass2.R;
-import com.syyk.electronicclass2.adapter.IntroduceAdapter;
 import com.syyk.electronicclass2.adapter.NoticeAdapter;
-import com.syyk.electronicclass2.bean.CardIdBean;
 import com.syyk.electronicclass2.bean.IntroAndNoticeBean;
+import com.syyk.electronicclass2.bean.MessageBean;
 import com.syyk.electronicclass2.httpcon.Connection;
 import com.syyk.electronicclass2.httpcon.HttpEventBean;
 import com.syyk.electronicclass2.httpcon.NetCartion;
+import com.syyk.electronicclass2.ui.AutoPollRecyclerView;
+import com.syyk.electronicclass2.utils.Catition;
 import com.syyk.electronicclass2.utils.ComUtils;
 import com.syyk.electronicclass2.utils.DateTimeUtil;
 import com.syyk.electronicclass2.utils.JsonUtils;
@@ -45,13 +48,17 @@ public class NoticeFragment extends Fragment {
 
     @BindView(R.id.notice_title_tv)
     TextView notice_title_tv;
+
     @BindView(R.id.notice_dis_rv)
-    RecyclerView notice_dis_rv;
+    AutoPollRecyclerView notice_dis_rv;
+
     @BindView(R.id.notice_load_pb)
     ProgressBar notice_load_pb;
 
+
     private NoticeAdapter noticeAdapter;
     private List<String> imageData = new ArrayList<>();
+    private LinearLayoutManager linearLayoutManager;
 
     private String isUpDate = "";
 
@@ -73,8 +80,12 @@ public class NoticeFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         noticeAdapter = new NoticeAdapter(getContext(),imageData);
-        notice_dis_rv.setLayoutManager(new LinearLayoutManager(getContext()));
+        linearLayoutManager = new LinearLayoutManager(getContext());
+        notice_dis_rv.setLayoutManager(linearLayoutManager);
+        notice_dis_rv.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         notice_dis_rv.setAdapter(noticeAdapter);
+
+        handler.postDelayed(runnable,5000);
 
     }
 
@@ -110,6 +121,12 @@ public class NoticeFragment extends Fragment {
                         noticeAdapter.setData(imageData);
                         notice_load_pb.setVisibility(View.GONE);
                         notice_dis_rv.setVisibility(View.VISIBLE);
+
+
+                        if((imageData.size() == 1&&linearLayoutManager.findFirstCompletelyVisibleItemPosition() != 0)
+                                || imageData.size() >=2){
+                            notice_dis_rv.start();
+                        }
                     }else{
                         StringUtils.showToast(JsonUtils.getJsonKey(josnString,"Message"));
                     }
@@ -120,12 +137,40 @@ public class NoticeFragment extends Fragment {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void noticePagerMsgEvent(MessageBean bean){
+        switch (bean.getMsgCode()){
+            case Catition.REFRESH_FRISTTHREE ://刷新首界面
+                String mac = ComUtils.getSave("mac");
+                if(null != mac){
+                    Connection.getNotice(mac,NetCartion.GETNOTICE_BACK);
+                }
+                break;
+        }
+    }
+
 
     private void addList(String image){
         if(!StringUtils.isEmpty(image)){
             imageData.add(image);
         }
     }
+
+
+    Handler handler = new Handler();
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            if(!notice_dis_rv.isRunning()){
+                notice_dis_rv.start();
+            }
+            if(ComUtils.isSlideToBottom(notice_dis_rv)){
+                notice_dis_rv.scrollToPosition(0);
+                notice_dis_rv.stop();
+            }
+            handler.postDelayed(runnable,5000);
+        }
+    };
 
     @Override
     public void onDestroy() {

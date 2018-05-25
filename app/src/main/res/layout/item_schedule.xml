@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:background="@color/main_card_bg"
-    android:layout_height="36dip">
+    android:layout_height="50dip">
     <View
         android:id="@+id/itemSchedule_first_v"
         android:layout_width="match_parent"

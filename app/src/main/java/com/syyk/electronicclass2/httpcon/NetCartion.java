@@ -38,6 +38,8 @@ public class NetCartion {
     public static final String BINDCLASSROOM = ip+"/api/ClassCard/GennerClassRoomProperty";
     //检查版本号
     public static final String CHECKVISION = ip+"/api/ClassCard/GetAndroidVersion";
+    //上报教室的人数
+    public static final String POSTCLASSPEONUM = ip+"/api/ClassCard/ClassRoomUsers";
 
     /**
      * int 类型的返回标志位置部分
@@ -72,9 +74,13 @@ public class NetCartion {
     public static final int GETATTENDANCECOUNT = 107;
     //获取当天考勤人数的返回
     public static final int GETTOATTENDANC_BACK = 108;
+    //获取当天考勤和课表同事解析的返回
+    public static final int GETTOATTENDANCANDSCHE_BACK = -108;
     //获取非当天的考勤人数的但会
     public static final int GETNODAYATTENDANC_BACK = 109;
     //获取软件版本的接口的返回
     public static final int CHECKVISIONCODE_BACK = 110;
+    //上传教室内部人数的接口返回
+    public static final int UPDATEROOMPEONUM_BACK = 111;
 
 }

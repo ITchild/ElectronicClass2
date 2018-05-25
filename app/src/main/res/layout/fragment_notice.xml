@@ -10,16 +10,49 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:paddingBottom="10dip"
+        android:paddingTop="10dip"
         android:textColor="@color/white"
         android:textSize="25sp"
         android:text="实训室公告"/>
 
-    <android.support.v7.widget.RecyclerView
+    <com.syyk.electronicclass2.ui.AutoPollRecyclerView
         android:id="@+id/notice_dis_rv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone">
-    </android.support.v7.widget.RecyclerView>
+        android:visibility="gone"
+       >
+    </com.syyk.electronicclass2.ui.AutoPollRecyclerView>
+
+    <!--<LinearLayout-->
+        <!--android:id="@+id/noctice_con_ll"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:visibility="gone"-->
+        <!--android:orientation="horizontal">-->
+        <!--<ScrollView-->
+            <!--android:layout_width="0dip"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_weight="1">-->
+            <!--<TextView-->
+                <!--android:id="@+id/noctice_con_tv"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:textColor="@color/white"-->
+                <!--android:textSize="20sp"-->
+                <!--/>-->
+
+        <!--</ScrollView>-->
+        <!--<com.youth.banner.Banner-->
+            <!--android:id="@+id/noctice_banner_br"-->
+            <!--android:layout_width="0dip"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_weight="3">-->
+        <!--</com.youth.banner.Banner>-->
+
+    <!--</LinearLayout>-->
+
+
 
     <ProgressBar
         android:id="@+id/notice_load_pb"

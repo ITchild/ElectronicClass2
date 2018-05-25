@@ -27,6 +27,7 @@ import com.syyk.electronicclass2.httpcon.HttpEventBean;
 import com.syyk.electronicclass2.httpcon.NetCartion;
 import com.syyk.electronicclass2.service.DownConfig;
 import com.syyk.electronicclass2.service.DownService;
+import com.syyk.electronicclass2.utils.Catition;
 import com.syyk.electronicclass2.utils.ComUtils;
 import com.syyk.electronicclass2.utils.JsonUtils;
 import com.syyk.electronicclass2.utils.StringUtils;
@@ -113,23 +114,34 @@ public class HomePagerFragment extends Fragment {
             switch(bean.getBackCode()){
                 case NetCartion.GETHOMEPAGER_BACK ://获取首页的视频的下载链接
                     String josnString = bean.getRes();
-                    HomePagerBean homePagerBean = JSON.parseObject(JsonUtils.getJsonObject(josnString,"Model"),HomePagerBean.class);
-
-                    SharedPreferences preferences = getContext().getSharedPreferences("home",0);
-                    if(!preferences.getString("time","").equals(homePagerBean.getFile())){
+                    String state = JsonUtils.getJsonKey(josnString,"Status");
+                    if(state.equals("1")) {
+                        HomePagerBean homePagerBean = JSON.parseObject(JsonUtils.getJsonObject(josnString, "Model"), HomePagerBean.class);
+                        SharedPreferences preferences = getContext().getSharedPreferences("home", 0);
+                        if (!preferences.getString("time", "").equals(homePagerBean.getFile())) {
 //                        //存储时间
-                        DownConfig.url = NetCartion.hip+homePagerBean.getFile();
-                        SharedPreferences.Editor editor = preferences.edit();
-                        editor.putString("time",homePagerBean.getFile());
-                        editor.commit();
-                        //启动下载
-                        startDown();
+                            DownConfig.url = NetCartion.hip + homePagerBean.getFile();
+                            SharedPreferences.Editor editor = preferences.edit();
+                            editor.putString("time", homePagerBean.getFile());
+                            editor.commit();
+                            //启动下载
+                            startDown();
+                        } else {
+                            File file = new File(videoUrl1);
+                            if (file.exists()) {
+                                //直接播放
+                                playVideo();
+                            } else {
+                                //不存在就下载
+                                startDown();
+                            }
+                        }
                     }else{
                         File file = new File(videoUrl1);
-                        if(file.exists()){
+                        if (file.exists()) {
                             //直接播放
                             playVideo();
-                        }else{
+                        } else {
                             //不存在就下载
                             startDown();
                         }
@@ -162,6 +174,12 @@ public class HomePagerFragment extends Fragment {
                 //下载失败,重新下载
                 getActivity().stopService(intent);
                 startDown();
+                break;
+            case Catition.REFRESH_FRISTTHREE ://刷新首界面
+                String mac = ComUtils.getSave("mac");
+                if(null != mac){
+                    Connection.getHomePager(mac,NetCartion.GETHOMEPAGER_BACK);
+                }
                 break;
         }
     }

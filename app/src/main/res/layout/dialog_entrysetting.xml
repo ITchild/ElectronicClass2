@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/classcircle_bt"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/entrySetting_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="请刷管理员卡"
+        android:textColor="@color/colorAccent"
+        android:textSize="@dimen/car_size" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:gravity="center">
+
+        <ProgressBar
+            android:layout_width="70dip"
+            android:layout_height="70dip" />
+
+        <TextView
+            android:id="@+id/entrySetting_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:text="等待中..."
+            android:textSize="30sp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/entrySetting_cancle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dip"
+        android:text="取消"/>
+
+</LinearLayout>

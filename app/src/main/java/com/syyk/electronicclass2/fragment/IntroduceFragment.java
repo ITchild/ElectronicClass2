@@ -1,13 +1,18 @@
 package com.syyk.electronicclass2.fragment;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -17,13 +22,18 @@ import com.syyk.electronicclass2.R;
 import com.syyk.electronicclass2.adapter.IntroduceAdapter;
 import com.syyk.electronicclass2.adapter.NoticeAdapter;
 import com.syyk.electronicclass2.bean.IntroAndNoticeBean;
+import com.syyk.electronicclass2.bean.MessageBean;
 import com.syyk.electronicclass2.httpcon.Connection;
 import com.syyk.electronicclass2.httpcon.HttpEventBean;
 import com.syyk.electronicclass2.httpcon.NetCartion;
+import com.syyk.electronicclass2.service.DownConfig;
+import com.syyk.electronicclass2.ui.AutoPollRecyclerView;
+import com.syyk.electronicclass2.utils.Catition;
 import com.syyk.electronicclass2.utils.ComUtils;
 import com.syyk.electronicclass2.utils.DateTimeUtil;
 import com.syyk.electronicclass2.utils.JsonUtils;
 import com.syyk.electronicclass2.utils.StringUtils;
+import com.xys.libzxing.zxing.encoding.EncodingUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -44,13 +54,24 @@ public class IntroduceFragment extends Fragment {
     @BindView(R.id.introduce_title_tv)
     TextView introduce_title_tv;
     @BindView(R.id.introduce_dis_rv)
-    RecyclerView introduce_dis_rv;
+    AutoPollRecyclerView introduce_dis_rv;
+
+    @BindView(R.id.introduce_con_ll)
+    LinearLayout introduce_con_ll;
+
+//    @BindView(R.id.introduce_con_tv)
+//    TextView introduce_con_tv;
+    @BindView(R.id.introduce_ECode_iv)
+    ImageView introduce_ECode_iv;
+//    @BindView(R.id.introduce_banner_br)
+//    Banner introduce_banner_br;
 
     @BindView(R.id.introduce_load_pb)
     ProgressBar introduce_load_pb;
 
     private IntroduceAdapter introduceAdapter;
     private List<String> imageData = new ArrayList<>();
+    private LinearLayoutManager linearLayoutManager;
 
     private String isUpDate ="";
 
@@ -72,8 +93,18 @@ public class IntroduceFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         introduceAdapter = new IntroduceAdapter(getContext(),imageData);
-        introduce_dis_rv.setLayoutManager(new LinearLayoutManager(getContext()));
+        linearLayoutManager = new LinearLayoutManager(getContext());
+        introduce_dis_rv.setLayoutManager(linearLayoutManager);
+        introduce_dis_rv.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         introduce_dis_rv.setAdapter(introduceAdapter);
+
+        //动态生成二维码
+        Bitmap bitmap = EncodingUtils.createQRCode("http://www.baidu.com", 800, 800, null);
+        // 设置图片
+        introduce_ECode_iv.setImageBitmap(bitmap);
+
+        handler.postDelayed(runnable,5000);
+
     }
 
     @Override
@@ -106,8 +137,14 @@ public class IntroduceFragment extends Fragment {
                             addList(bean1.getPath());
                         }
                         introduceAdapter.setData(imageData);
+
                         introduce_load_pb.setVisibility(View.GONE);
                         introduce_dis_rv.setVisibility(View.VISIBLE);
+
+                        if((imageData.size() == 1&&linearLayoutManager.findFirstCompletelyVisibleItemPosition() != 0)
+                                || imageData.size() >=2){
+                            introduce_dis_rv.start();
+                        }
                     }else{
                         StringUtils.showToast(JsonUtils.getJsonKey(josnString,"Message"));
                     }
@@ -118,6 +155,17 @@ public class IntroduceFragment extends Fragment {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void introPagerMsgEvent(MessageBean bean){
+        switch (bean.getMsgCode()){
+            case Catition.REFRESH_FRISTTHREE ://刷新首界面
+                String mac = ComUtils.getSave("mac");
+                if(null != mac){
+                    Connection.getIntroduce(mac,NetCartion.GETINTRODUCE_BACK);
+                }
+                break;
+        }
+    }
 
     private void addList(String image){
         if(!StringUtils.isEmpty(image)){
@@ -125,9 +173,27 @@ public class IntroduceFragment extends Fragment {
         }
     }
 
+
+    Handler handler = new Handler();
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            if(!introduce_dis_rv.isRunning()){
+                introduce_dis_rv.start();
+            }
+            if(ComUtils.isSlideToBottom(introduce_dis_rv)){
+                introduce_dis_rv.scrollToPosition(0);
+                introduce_dis_rv.stop();
+            }
+            handler.postDelayed(runnable,5000);
+        }
+    };
+
+
     @Override
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
     }
+
 }

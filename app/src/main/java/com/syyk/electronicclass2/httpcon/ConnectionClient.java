@@ -72,12 +72,25 @@ public class ConnectionClient {
         });
     }
 
-    public static void simpleCon(String url,int resCode){
+    public static void simpleCon(final String url, final int resCode){
         StringUtils.showLog(url);
-        simpleGetCon(url,resCode);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                simpleGetCon(url,resCode);
+            }
+        };
+        new Thread(runnable).start();
     }
-    public static void simpleCon(RequestBody body,String url,int resCode){
-        simplePostCon(body,url,resCode);
+    public static void simpleCon(final RequestBody body, final String url, final int resCode){
+        StringUtils.showLog(url);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                simplePostCon(body,url,resCode);
+            }
+        };
+        new Thread(runnable).start();
     }
 
     /**

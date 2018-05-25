@@ -75,7 +75,7 @@ public class AttenAdapter extends RecyclerView.Adapter<AttenAdapter.MyViewHolder
 
     @Override
     public int getItemCount(){
-        return 9;
+        return 5;
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {

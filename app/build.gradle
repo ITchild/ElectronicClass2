@@ -49,6 +49,7 @@ dependencies {
     apt 'com.jakewharton:butterknife-compiler:8.0.1'
     //EventBus的依赖
     compile 'org.greenrobot:eventbus:3.0.0'
+
     compile files('libs/INetSDK.jar')
     compile files('libs/IPlaySDK.jar')
     compile files('libs/libToUProxy.jar')
@@ -61,4 +62,7 @@ dependencies {
     compile 'com.prolificinteractive:material-calendarview:1.4.0'
     //二维码控件
     compile project(':libzxing')
+    compile files('libs/signalr-client-sdk-android.jar')
+    compile files('libs/signalr-client-sdk.jar')
+    compile files('libs/gson-2.2.2.jar')
 }

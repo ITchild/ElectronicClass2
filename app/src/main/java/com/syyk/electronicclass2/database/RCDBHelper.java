@@ -35,36 +35,22 @@ public class RCDBHelper {
      */
     public void saveCardId(AttenBean attenBean) {
         if(attenBean == null) {
-            StringUtils.showToast("窗帘的设置参数为空");
+            StringUtils.showToast("保存刷卡信息不能为空");
             return;
         }
-        db.execSQL("insert into atten (cardid, time,flag) values(?,?,?)",
-                new String[]{attenBean.getCardid(), attenBean.getDatetime(),attenBean.getName()});
+        db.execSQL("insert into atten (cardid, syllabusid) values(?,?)",
+                new String[]{attenBean.getCardid(), attenBean.getSyllabusid()});
     }
     /**
      * 删除对应刷卡信息
-     * @param time
+     * @param cardid
+     * @param syllabusid
      */
-    public void deleteCardId(String time) {
-        db.execSQL("delete from atten where time=?", new Object[]{time});
-    }
-    public void deleteAllCardId(){
-        db.execSQL("delete from atten");
+    public void deleteCardId(String cardid,String syllabusid) {
+        db.execSQL("delete from atten where cardid=? and syllabusid=?", new Object[]{cardid,syllabusid});
     }
     /**
-     * 更新刷卡信息
-     */
-    public void upDareCardId(AttenBean attenBean){
-        if(attenBean == null) {
-            StringUtils.showToast("窗帘的设置参数为空");
-            return;
-        }
-        db.execSQL("update atten set flag=? where time=?",
-                new String[]{attenBean.getName(),attenBean.getDatetime()});
-        Log.i("TEST","数据保存成功");
-    }
-    /**
-     * 获取所有窗帘配置
+     * 获取所有刷卡信息
      * @return
      */
     public List<AttenBean> getAllCardId() {
@@ -75,33 +61,11 @@ public class RCDBHelper {
             do {
                 AttenBean attenBean = new AttenBean();
                 attenBean.setCardid(cursor.getString(cursor.getColumnIndex("cardid")));
-                attenBean.setDatetime(cursor.getString(cursor.getColumnIndex("time")));
-                attenBean.setName(cursor.getString(cursor.getColumnIndex("flag")));
+                attenBean.setSyllabusid(cursor.getString(cursor.getColumnIndex("syllabusid")));
                 attenBeans.add(attenBean);
             }while (cursor.moveToPrevious());
         cursor.close();
         return attenBeans;
-    }
-    /**
-     * 获取UID对应的窗帘配置
-     * @return
-     */
-    public AttenBean getTimeCardIds(String time) {
-        List<AttenBean> attenBeans = new ArrayList<AttenBean>();
-        Cursor cursor = db.rawQuery("select * from atten where time=?",new String[]{time});
-        while (cursor.moveToNext()) {
-            AttenBean attenBean = new AttenBean();
-            attenBean.setCardid(cursor.getString(cursor.getColumnIndex("cardid")));
-            attenBean.setDatetime(cursor.getString(cursor.getColumnIndex("time")));
-            attenBean.setName(cursor.getString(cursor.getColumnIndex("flag")));
-            attenBeans.add(attenBean);
-        }
-        cursor.close();
-        if(attenBeans != null && attenBeans.size()>0){
-            return attenBeans.get(0);
-        }else{
-            return null;
-        }
     }
 
     /**

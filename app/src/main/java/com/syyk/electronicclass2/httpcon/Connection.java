@@ -171,8 +171,27 @@ public class Connection {
 
     }
 
+    /**
+     * 检查版本号
+     * @param resCode
+     */
     public static void checkVisionCode(int resCode){
         ConnectionClient.simpleCon(NetCartion.CHECKVISION,resCode);
+    }
+
+    /**
+     * 更新教室内人员数量
+     * @param num
+     * @param resCode
+     */
+    public static void upDateRoomPeoNum(int num,int resCode){
+        ConnectionClient.simpleCon(NetCartion.POSTCLASSPEONUM+"?count="+num+
+                "&makeSureId="+ComUtils.getRandom(),resCode);
+//        RequestBody body = new FormBody.Builder()
+//                .add("count", num+"")
+//                .add("makeSureId", ComUtils.getRandom())
+//                .build();
+//        ConnectionClient.simplePostCon(body, NetCartion.POSTCLASSPEONUM, resCode);
     }
 
 }

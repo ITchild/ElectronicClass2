@@ -56,6 +56,27 @@ public class DateTimeUtil {
     }
 
     /**
+     * 改变时间，mill为负值则前移时间，反之相反
+     * @param time
+     * @param mill
+     * @return
+     */
+    public static String changeTime(String time,int mill){
+        long startTimeL = getCurFormat2Millis("HH:mm:ss",time);
+        return getCurFormatStrTime("HH:mm:ss",startTimeL + mill);
+    }
+    /**
+     * 日期加或减
+     * @param date
+     * @param day
+     * @return
+     */
+    public static String changeDate(String date,int day){
+        long startTimeL = getCurFormat2Millis("yyyy-MM-dd",date);
+        return getCurFormatStrTime("yyyy-MM-dd",startTimeL + (86400000*day));
+    }
+
+    /**
      * 根据日期获取毫秒数
      */
     public static long getCurFormat2Millis(String format,String stringDate){
@@ -71,6 +92,24 @@ public class DateTimeUtil {
         //获取毫秒数
         return date.getTime();
 
+    }
+    /**
+     * 根据日期获取周几
+     */
+    public static String getCurFormatWeek(String format,String stringDate){
+        long startTimeL = getCurFormat2Millis(format,stringDate);
+        return getCurFormatStrTime("E",startTimeL);
+    }
+
+    public static boolean getTimeBetewnTimes(String format,String startTime,String endTime,String time){
+        long startTimeL = getCurFormat2Millis(format,startTime);
+        long endTimeL = getCurFormat2Millis(format,endTime);
+        long timeL = getCurFormat2Millis(format,time);
+        if(timeL>startTimeL && timeL<endTimeL){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     /**

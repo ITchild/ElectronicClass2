@@ -52,22 +52,27 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.MyViewHold
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, final int position) {
-        if (position == 0) {
-            holder.itemnotice_image_iv.setVisibility(View.GONE);
-            holder.itemnotice_con_tv.setVisibility(View.VISIBLE);
-            holder.itemnotice_con_tv.setText(data.get(position));
-            holder.itemnotice_con_tv.setTextSize(18 + (size * 3));
-        } else {
-            //搞事情
-            holder.itemnotice_image_iv.setVisibility(View.VISIBLE);
-            holder.itemnotice_con_tv.setVisibility(View.GONE);
-            ImageLoader.getInstance().displayImage(NetCartion.hip + data.get(position), holder.itemnotice_image_iv);
-        }
+            if (position == 0) {
+                holder.itemnotice_image_iv.setVisibility(View.GONE);
+                holder.itemnotice_con_tv.setVisibility(View.VISIBLE);
+                holder.itemnotice_con_tv.setText(data.get(position));
+                holder.itemnotice_con_tv.setTextSize(18 + (size * 3));
+            } else {
+                //搞事情
+                holder.itemnotice_image_iv.setVisibility(View.VISIBLE);
+                holder.itemnotice_con_tv.setVisibility(View.GONE);
+                ImageLoader.getInstance().displayImage(NetCartion.hip + data.get(position), holder.itemnotice_image_iv);
+            }
     }
 
     @Override
     public int getItemCount() {
         return data.size();
+//        if(data.size() == 0){
+//            return data.size();
+//        }else {
+//            return Integer.MAX_VALUE;
+//        }
     }
 
 

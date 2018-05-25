@@ -11,21 +11,68 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textColor="@color/white"
+        android:paddingBottom="10dip"
+        android:paddingTop="10dip"
         android:textSize="25sp"
         android:text="实训室介绍"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/introduce_dis_rv"
+    <LinearLayout
+        android:id="@+id/introduce_con_ll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone">
-    </android.support.v7.widget.RecyclerView>
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+
+        <LinearLayout
+            android:layout_width="160dip"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <!--<ScrollView-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_weight="1">-->
+
+                <!--<TextView-->
+                    <!--android:id="@+id/introduce_con_tv"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:textColor="@color/white"-->
+                    <!--android:textSize="20sp" />-->
+
+            <!--</ScrollView>-->
+
+            <ImageView
+                android:id="@+id/introduce_ECode_iv"
+                android:layout_width="150dip"
+                android:layout_height="150dip"
+                android:scaleType="centerCrop"/>
+        </LinearLayout>
+
+
+        <com.syyk.electronicclass2.ui.AutoPollRecyclerView
+            android:id="@+id/introduce_dis_rv"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="3">
+        </com.syyk.electronicclass2.ui.AutoPollRecyclerView>
+
+        <!--<com.youth.banner.Banner-->
+            <!--android:id="@+id/introduce_banner_br"-->
+            <!--android:layout_width="0dip"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_weight="3"></com.youth.banner.Banner>-->
+
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/introduce_load_pb"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center"
+        android:visibility="gone"
         />
 
 </LinearLayout>

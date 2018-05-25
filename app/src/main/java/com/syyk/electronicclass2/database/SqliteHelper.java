@@ -15,8 +15,25 @@ public class SqliteHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE atten (id integer primary key autoincrement, cardid varchar(50), time varchar(50), flag varchar(6))");
+        db.execSQL("CREATE TABLE atten (id integer primary key autoincrement, cardid varchar(50), syllabusid varchar(50))");
+
+        db.execSQL("CREATE TABLE schedule (id integer primary key autoincrement, " +
+                "SyllabusId integer, " +
+                "ClassRoomName varchar(20), " +
+                "TeacherName varchar(10), " +
+                "CategoryName varchar(10), " +
+                "StartTime varchar(15), " +
+                "EndTime varchar(15), " +
+                "LessonNum integer, " +
+                "Students varchar(10), " +
+                "Attendens varchar(10), " +
+                "Late varchar(10), " +
+                "ClassName varchar(20))");
+        db.execSQL("CREATE TABLE super (id integer primary key autoincrement, " +
+                "CardId varchar(20), " +
+                "Name varchar(20))");
     }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 

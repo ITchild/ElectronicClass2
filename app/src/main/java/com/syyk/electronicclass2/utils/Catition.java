@@ -18,6 +18,8 @@ public class Catition {
     public static final int DELETECARDID = 1003;
     //更新主页的课表
     public static final int UPDATECLASS = 1004;
+    //更新主页的课表
+    public static final int UPDATECLASSUI = -1004;
     //屏幕的菜单
     public static final int MENUSETTING = 1005;
     //屏幕的上翻
@@ -28,5 +30,14 @@ public class Catition {
     public static final int OKSETTING = 1008;
     //绑定教室成功
     public static final int BINGCLASSROOM_SUCCESS = 1009;
-
+    //系统时间获取成功，通知个界面联网获取数据
+    public static final int GETTIME_SUCCESS_UPDATE = 1010;
+    //刷新考勤界面
+    public static final int REFRESH_ATTENDANCE = 1011;
+    //刷新首页公告和介绍
+    public static final int REFRESH_FRISTTHREE = 1012;
+    //通知SignalR发送消息
+    public static final int SIGNALR_SEND = 1013;
+    //开始上传离线签到的信息
+    public static final int POSTUPNONETATTEN = 1014;
 }

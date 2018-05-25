@@ -8,8 +8,11 @@ import android.os.Bundle;
 import com.company.NetSDK.NET_DEVICEINFO_Ex;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.syyk.electronicclass2.bean.ScheduleBean;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by fei on 2017/12/29.
@@ -23,9 +26,13 @@ public class ElectronicApplication extends Application {
     private long mloginHandle;
     private String Mac = null;
 
+    public List<ScheduleBean> todaySchedule = new ArrayList<>();
+
     public String SyllabusId;
 
     public long timeMulis = 0;
+    public String date;
+    public String week;
 
     @Override
     public void onCreate() {

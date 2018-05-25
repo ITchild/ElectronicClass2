@@ -27,8 +27,10 @@ public class IntroduceAdapter extends RecyclerView.Adapter<IntroduceAdapter.MyVi
     private LayoutInflater inflater;
     private List<String> data = new ArrayList<>();
     private int size =0;
+    private Context mContext;
 
     public IntroduceAdapter(Context context, List<String> data) {
+        mContext = context;
         inflater = LayoutInflater.from(context);
         this.data = data;
     }
@@ -50,22 +52,27 @@ public class IntroduceAdapter extends RecyclerView.Adapter<IntroduceAdapter.MyVi
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, final int position) {
-        if(position == 0){
-            holder.itemintroduce_image_iv.setVisibility(View.GONE);
-            holder.itemintroduce_con_tv.setVisibility(View.VISIBLE);
-            holder.itemintroduce_con_tv.setText(data.get(position));
-            holder.itemintroduce_con_tv.setTextSize(18+(size*3));
-        }else {
-            //搞事情
-            holder.itemintroduce_image_iv.setVisibility(View.VISIBLE);
-            holder.itemintroduce_con_tv.setVisibility(View.GONE);
-            ImageLoader.getInstance().displayImage(NetCartion.hip+data.get(position), holder.itemintroduce_image_iv);
-        }
+            if (position == 0) {
+                holder.itemintroduce_image_iv.setVisibility(View.GONE);
+                holder.itemintroduce_con_tv.setVisibility(View.VISIBLE);
+                holder.itemintroduce_con_tv.setText(data.get(position));
+                holder.itemintroduce_con_tv.setTextSize(18 + (size * 3));
+            } else {
+                //搞事情
+                holder.itemintroduce_image_iv.setVisibility(View.VISIBLE);
+                holder.itemintroduce_con_tv.setVisibility(View.GONE);
+                ImageLoader.getInstance().displayImage(NetCartion.hip + data.get(position), holder.itemintroduce_image_iv);
+            }
     }
 
     @Override
     public int getItemCount(){
         return data.size();
+//        if(data.size() == 0){
+//            return data.size();
+//        }else {
+//            return Integer.MAX_VALUE;
+//        }
     }
 
 

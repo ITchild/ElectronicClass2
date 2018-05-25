@@ -19,11 +19,13 @@ import com.syyk.electronicclass2.bean.IntroAndNoticeBean;
 import com.syyk.electronicclass2.bean.MessageBean;
 import com.syyk.electronicclass2.bean.VerSionCodeBean;
 import com.syyk.electronicclass2.dialog.BondClassRoomDialog;
+import com.syyk.electronicclass2.dialog.LoadingDialog;
 import com.syyk.electronicclass2.dialog.MainSettingDialog;
 import com.syyk.electronicclass2.httpcon.Connection;
 import com.syyk.electronicclass2.httpcon.ConnectionClient;
 import com.syyk.electronicclass2.httpcon.HttpEventBean;
 import com.syyk.electronicclass2.httpcon.NetCartion;
+import com.syyk.electronicclass2.ui.LongTouchBtn;
 import com.syyk.electronicclass2.utils.Catition;
 import com.syyk.electronicclass2.utils.ComUtils;
 import com.syyk.electronicclass2.utils.JsonUtils;
@@ -45,7 +47,7 @@ import butterknife.OnClick;
  * Created by fei on 2017/12/29.
  */
 
-public class SettingFragmnet extends Fragment {
+public class SettingFragmnet extends Fragment{
 //    @BindView(R.id.setting_change_sb)
 //    SeekBar setting_change_sb;
 //    @BindView(R.id.setting_change_tv)
@@ -58,6 +60,17 @@ public class SettingFragmnet extends Fragment {
     @BindView(R.id.setting_Copyright_tv)
     TextView setting_Copyright_tv;
 
+    @BindView(R.id.setting_menu_bt)
+    LongTouchBtn setting_menu_bt;
+    @BindView(R.id.setting_up_bt)
+    LongTouchBtn setting_up_bt;
+
+    @BindView(R.id.setting_Ok_bt)
+    LongTouchBtn setting_Ok_bt;
+    @BindView(R.id.setting_down_bt)
+    LongTouchBtn setting_down_bt;
+
+
     private MainSettingDialog mainSettingDialog;
 
     private BondClassRoomDialog bondClassRoomDialog;
@@ -66,6 +79,8 @@ public class SettingFragmnet extends Fragment {
     UpdateManger updateManger ;
 
     private String macAddr ;
+
+    private LoadingDialog loadingDialog;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -115,12 +130,112 @@ public class SettingFragmnet extends Fragment {
         setting_appName_tv.setText("软件名称："+getContext().getResources().getString(R.string.app_name));
         setting_version_tv.setText("版本号："+ComUtils.getLocalVersionName(getActivity()));
         setting_Copyright_tv.setText(getContext().getResources().getString(R.string.copyRight));
+
+        loadingDialog = new LoadingDialog(getContext(),"请稍等...");
+
+        initListener();
     }
 
-    @OnClick({R.id.setting_ip_bt,R.id.setting_ClassRoom_bt,R.id.setting_UpDate_bt,R.id.setting_menu_bt,
-            R.id.setting_up_bt,R.id.setting_down_bt,R.id.setting_Ok_bt})
+    private void initListener(){
+        //    菜单/确认
+        setting_menu_bt.setOnLongTouchListener(new LongTouchBtn.LongTouchListener() {
+            @Override
+            public void onLongTouch() {
+                MessageBean bean = new MessageBean();
+                bean.setMsgCode(Catition.MENUSETTING);
+                bean.setMsgs("07A0010105AEFF");
+                EventBus.getDefault().post(bean);
+            }
+            @Override
+            public void onLongUp(boolean isLong) {
+                MessageBean bean = new MessageBean();
+                if(isLong){
+                    bean.setMsgCode(Catition.MENUSETTING);
+                    bean.setMsgs("07A0010109B2FF");
+                    EventBus.getDefault().post(bean);
+                }else{//点击事件
+                    bean.setMsgCode(Catition.MENUSETTING);
+                    bean.setMsgs("07A0010101AAFF");
+                    EventBus.getDefault().post(bean);
+                }
+            }
+        });
+        //上翻
+        setting_up_bt.setOnLongTouchListener(new LongTouchBtn.LongTouchListener() {
+            @Override
+            public void onLongTouch() {
+                MessageBean bean = new MessageBean();
+                bean.setMsgCode(Catition.UPSETTING);
+                bean.setMsgs("07A0010107B0FF");
+                EventBus.getDefault().post(bean);
+            }
+
+            @Override
+            public void onLongUp(boolean isLong) {
+                MessageBean bean = new MessageBean();
+                if(isLong){
+                    bean.setMsgCode(Catition.UPSETTING);
+                    bean.setMsgs("07A001010BB4FF");
+                    EventBus.getDefault().post(bean);
+                }else{//点击事件
+                    bean.setMsgCode(Catition.UPSETTING);
+                    bean.setMsgs("07A0010103ACFF");
+                    EventBus.getDefault().post(bean);
+                }
+            }
+        });
+        //下翻
+        setting_down_bt.setOnLongTouchListener(new LongTouchBtn.LongTouchListener() {
+            @Override
+            public void onLongTouch() {
+                MessageBean bean = new MessageBean();
+                bean.setMsgCode(Catition.DOWNSETTING);
+                bean.setMsgs("07A0010108B1FF");
+                EventBus.getDefault().post(bean);
+            }
+
+            @Override
+            public void onLongUp(boolean isLong) {
+                MessageBean bean = new MessageBean();
+                if(isLong){
+                    bean.setMsgCode(Catition.DOWNSETTING);
+                    bean.setMsgs("07A001010CB5FF");
+                    EventBus.getDefault().post(bean);
+                }else{//点击事件
+                    bean.setMsgCode(Catition.DOWNSETTING);
+                    bean.setMsgs("07A0010104ADFF");
+                    EventBus.getDefault().post(bean);
+                }
+            }
+        });
+        //返回
+        setting_Ok_bt.setOnLongTouchListener(new LongTouchBtn.LongTouchListener() {
+            @Override
+            public void onLongTouch() {
+                MessageBean bean = new MessageBean();
+                bean.setMsgCode(Catition.OKSETTING);
+                bean.setMsgs("07A0010106AFFF");
+                EventBus.getDefault().post(bean);
+            }
+
+            @Override
+            public void onLongUp(boolean isLong) {
+                MessageBean bean = new MessageBean();
+                if(isLong){
+                    bean.setMsgCode(Catition.OKSETTING);
+                    bean.setMsgs("07A001010AB3FF");
+                    EventBus.getDefault().post(bean);
+                }else{//点击事件
+                    bean.setMsgCode(Catition.OKSETTING);
+                    bean.setMsgs("07A0010102ABFF");
+                    EventBus.getDefault().post(bean);
+                }
+            }
+        });
+    }
+
+    @OnClick({R.id.setting_ip_bt,R.id.setting_ClassRoom_bt,R.id.setting_UpDate_bt,R.id.setting_exit_bt})
     public void settingOnClick(View view){
-        MessageBean bean = new MessageBean();
         switch (view.getId()){
             case R.id.setting_ip_bt :
                 mainSettingDialog.show();
@@ -128,29 +243,14 @@ public class SettingFragmnet extends Fragment {
             case R.id.setting_ClassRoom_bt ://绑定教室
                 //先获取教室的列表
                 Connection.getClassRoom(NetCartion.GETCLASSROOM_BACK);
+                loadingDialog.show();
                 break;
             case R.id.setting_UpDate_bt ://检查软甲更新
                 Connection.checkVisionCode(NetCartion.CHECKVISIONCODE_BACK);
+                loadingDialog.show();
                 break;
-            case R.id.setting_menu_bt :// 菜单/确认
-                bean.setMsgCode(Catition.MENUSETTING);
-                bean.setMsgs("07A0010101AAFF");
-                EventBus.getDefault().post(bean);
-                break;
-            case R.id.setting_up_bt :// 上翻
-                bean.setMsgCode(Catition.UPSETTING);
-                bean.setMsgs("07A0010103ACFF");
-                EventBus.getDefault().post(bean);
-                break;
-            case R.id.setting_down_bt :// 下翻
-                bean.setMsgCode(Catition.DOWNSETTING);
-                bean.setMsgs("07A0010104ADFF");
-                EventBus.getDefault().post(bean);
-                break;
-            case R.id.setting_Ok_bt :// 返回
-                bean.setMsgCode(Catition.OKSETTING);
-                bean.setMsgs("07A0010102ABFF");
-                EventBus.getDefault().post(bean);
+            case R.id.setting_exit_bt :
+                System.exit(0);
                 break;
         }
     }
@@ -167,6 +267,7 @@ public class SettingFragmnet extends Fragment {
         if(bean.getResCode() == NetCartion.SUCCESS){
             switch(bean.getBackCode()){
                 case NetCartion.GETCLASSROOM_BACK :
+                    loadingDialog.cancel();
                     final String classRes = bean.getRes();
                     classData = JSON.parseArray(JsonUtils.getJsonArr(classRes,"Model").toString(),ClassRoomBean.class);
                     if(classData != null){
@@ -177,12 +278,14 @@ public class SettingFragmnet extends Fragment {
                             public void onItemClick(int postion) {
                                 //进行教室的绑定
                                 macAddr = ComUtils.getMac();
+                                loadingDialog.show();
                                 Connection.bondClassRoom(macAddr,classData.get(postion).getId()+"",NetCartion.BONDCLASSROOM_BACK);
                             }
                         });
                     }
                     break;
                 case NetCartion.BONDCLASSROOM_BACK:
+                    loadingDialog.cancel();
                     String bondString = bean.getRes();
                     String state = JsonUtils.getJsonKey(bondString,"Status");
                     if(state.equals("1")){
@@ -200,6 +303,7 @@ public class SettingFragmnet extends Fragment {
                     }
                     break;
                 case NetCartion.CHECKVISIONCODE_BACK :
+                    loadingDialog.cancel();
                     String jsonString = bean.getRes();
                     String checkState = JsonUtils.getJsonKey(jsonString,"Status");
                     if(checkState.equals("1")){
@@ -217,6 +321,7 @@ public class SettingFragmnet extends Fragment {
                     break;
             }
         }else if(bean.getResCode() == NetCartion.FIAL){
+            loadingDialog.cancel();
             StringUtils.showToast(bean.getRes());
         }
     }
