@@ -15,8 +15,16 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.syyk.electronicclass2.R;
+import com.syyk.electronicclass2.bean.MessageBean;
+import com.syyk.electronicclass2.httpcon.Connection;
+import com.syyk.electronicclass2.httpcon.NetCartion;
+import com.syyk.electronicclass2.utils.Catition;
 import com.syyk.electronicclass2.utils.ComUtils;
+import com.syyk.electronicclass2.utils.StringUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.videolan.libvlc.EventHandler;
 import org.videolan.libvlc.IVideoPlayer;
 import org.videolan.libvlc.LibVLC;
@@ -52,6 +60,8 @@ public class LiveNewFragment extends Fragment implements SurfaceHolder.Callback,
     private int mSarNum;
     private int mSarDen;
 
+    private boolean isFrist = true;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +72,7 @@ public class LiveNewFragment extends Fragment implements SurfaceHolder.Callback,
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_livenew,container,false);
         ButterKnife.bind(this,view);
+        EventBus.getDefault().register(this);
         return view;
     }
 
@@ -90,10 +101,30 @@ public class LiveNewFragment extends Fragment implements SurfaceHolder.Callback,
         //		mMediaPlayer.setMediaList();
         //		mMediaPlayer.getMediaList().add(new Media(mMediaPlayer, "http://live.3gv.ifeng.com/zixun.m3u8"), false);
         //		mMediaPlayer.playIndex(0);
-        mMediaPlayer.playMRL("rtsp://" + user + ":" + passWord + "@" + IP + ":" + port + "/cam/realmonitor?channel=1&subtype=1");
-
+//        mMediaPlayer.playMRL("rtsp://" + user + ":" + passWord + "@" + IP + ":" + port + "/cam/realmonitor?channel=1&subtype=1");
 //        rtsp://admin:syyk8888@192.168.1.108:554/cam/realmonitor?channel=1&subtype=0
+    }
 
+
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    public void liveNewMsgEvent(MessageBean bean){
+        switch (bean.getMsgCode()){
+            case Catition.TELLFRAGMENTCLICKED : //主界面发送来的界面的点击消息
+                if(bean.getMsgi() == 5){
+                    if (isFrist){
+                        isFrist = false;
+                        mMediaPlayer.playMRL("rtsp://" + user + ":" + passWord + "@"
+                                + IP + ":" + port + "/cam/realmonitor?channel=1&subtype=1");
+                    }else {
+                        mMediaPlayer.play();
+                    }
+                }else{
+                    if (mMediaPlayer.isPlaying()){
+                        mMediaPlayer.stop();
+                    }
+                }
+                break;
+        }
     }
 
     private void getSetting() {

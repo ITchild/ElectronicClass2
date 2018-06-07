@@ -194,4 +194,27 @@ public class Connection {
 //        ConnectionClient.simplePostCon(body, NetCartion.POSTCLASSPEONUM, resCode);
     }
 
+    /**
+     * 获取离线一周课表
+     * @param mac
+     * @param resCode
+     */
+
+    public static void getNoNetWorkSchedule(String mac,int resCode){
+        ConnectionClient.simpleCon(NetCartion.WEEKSCHEDULE+"?mac="
+                +mac+"&makeSureId="+ComUtils.getRandom(),resCode);
+    }
+
+    /**
+     * 上传android版本号和硬件的版本号
+     * @param androidVision
+     * @param hardVision
+     * @param mac
+     * @param resCode
+     */
+    public static void upDateAndroidAndHardWare(String androidVision,String hardVision,String mac,int resCode){
+        ConnectionClient.simpleCon(NetCartion.UPDATEANDROIDANDHARDWARE+"?android="+androidVision+
+        "&firmware="+hardVision+"&mac="+mac+"&makeSureId="+ComUtils.getRandom(),resCode);
+    }
+
 }

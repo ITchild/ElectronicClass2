@@ -70,6 +70,9 @@ public class SettingFragmnet extends Fragment{
     @BindView(R.id.setting_down_bt)
     LongTouchBtn setting_down_bt;
 
+    @BindView(R.id.setting_Cclose_bt)
+    Button setting_Cclose_bt;
+
 
     private MainSettingDialog mainSettingDialog;
 
@@ -81,6 +84,11 @@ public class SettingFragmnet extends Fragment{
     private String macAddr ;
 
     private LoadingDialog loadingDialog;
+
+    private String className;
+
+    private int [] testData = {30,60,120,600};
+    private int testPosion = 0;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -234,8 +242,10 @@ public class SettingFragmnet extends Fragment{
         });
     }
 
-    @OnClick({R.id.setting_ip_bt,R.id.setting_ClassRoom_bt,R.id.setting_UpDate_bt,R.id.setting_exit_bt})
+    @OnClick({R.id.setting_ip_bt,R.id.setting_ClassRoom_bt,R.id.setting_UpDate_bt,R.id.setting_exit_bt
+    ,R.id.setting_getYing_bt,R.id.setting_Copen_bt,R.id.setting_Cclose_bt})
     public void settingOnClick(View view){
+        MessageBean bean = new MessageBean();
         switch (view.getId()){
             case R.id.setting_ip_bt :
                 mainSettingDialog.show();
@@ -251,6 +261,27 @@ public class SettingFragmnet extends Fragment{
                 break;
             case R.id.setting_exit_bt :
                 System.exit(0);
+                break;
+            /************测试使用************/
+            case R.id.setting_getYing_bt ://读取硬件的版本号
+                bean.setMsgCode(Catition.GETYINGVERSION);
+                EventBus.getDefault().post(bean);
+                break;
+            case R.id.setting_Copen_bt ://设置屏幕常亮
+                bean.setMsgCode(Catition.SETPINGCOPEN);
+                bean.setMsgs("open");
+                EventBus.getDefault().post(bean);
+                break;
+            case R.id.setting_Cclose_bt :
+                bean.setMsgCode(Catition.SETPINGCOPEN);
+                bean.setMsgs("close");
+                setting_Cclose_bt.setText("设置为常闭("+testData[testPosion]+"S)");
+                bean.setMsgi(testData[testPosion]);
+                testPosion ++;
+                if(testPosion == 4){
+                    testPosion = 0;
+                }
+                EventBus.getDefault().post(bean);
                 break;
         }
     }
@@ -279,6 +310,7 @@ public class SettingFragmnet extends Fragment{
                                 //进行教室的绑定
                                 macAddr = ComUtils.getMac();
                                 loadingDialog.show();
+                                className = classData.get(postion).getName();
                                 Connection.bondClassRoom(macAddr,classData.get(postion).getId()+"",NetCartion.BONDCLASSROOM_BACK);
                             }
                         });
@@ -293,6 +325,7 @@ public class SettingFragmnet extends Fragment{
                         SharedPreferences preferences = ElectronicApplication.getmIntent().getSharedPreferences("Setting",0);
                         SharedPreferences.Editor editor = preferences.edit();
                         editor.putString("mac",macAddr);
+                        editor.putString("name",className);
                         editor.commit();
                         //绑定教室成功，发送消息
                         MessageBean messageBean = new MessageBean();

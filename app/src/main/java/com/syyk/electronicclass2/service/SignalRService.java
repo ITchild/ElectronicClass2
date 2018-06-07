@@ -9,6 +9,7 @@ import android.util.Log;
 import com.google.gson.JsonElement;
 import com.syyk.electronicclass2.bean.MessageBean;
 import com.syyk.electronicclass2.utils.Catition;
+import com.syyk.electronicclass2.utils.ComUtils;
 import com.syyk.electronicclass2.utils.StringUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -40,8 +41,12 @@ public class SignalRService extends Service {
 
     public static final String SERVER_HUB_CHAT = "serverHub";//与服务器那边的名称一致
 
-    public static final String SERVER_METHOD_SEND = "Connect";//服务器上面的方法
+    public static final String SERVER_METHOD_SEND = "Connect";//服务器上面的方法(发送MAC地址的方法)
+//    public static final String SERVER_STOP_SERVICE = "Disconnected" ;//退出时的给服务器发消息
+
     public static final String CLIENT_METHOD_RECEIVE = "ReciveConnected";//客户端这边的方法，服务器调用时需要根据这个来进行对应的调用
+    public static final String CLIENT_OPENORCLOSE = "OpenOrClose";//控制屏幕的开关
+    public static final String CLIENT_SETOPENSTYE = "SetDisplay";//设置屏幕的显示模式和延时时间
 
     private static final String TAG = "SignalRService";
 
@@ -55,23 +60,22 @@ public class SignalRService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
         EventBus.getDefault().register(this);
         Log.d(TAG, "Service Created");
-
+        mHubConnection = new HubConnection(serverUrl);//初始化连接
+        mHubProxy = mHubConnection.createHubProxy(SERVER_HUB_CHAT);
+        startSignalR();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         int result = super.onStartCommand(intent, flags, startId);
-        startSignalR();
         return result;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        startSignalR();
         return mBinder;
     }
 
@@ -89,12 +93,12 @@ public class SignalRService extends Service {
     private void startSignalR() {
         Platform.loadPlatformComponent(new AndroidPlatformComponent());
 
-        mHubConnection = new HubConnection(serverUrl);//初始化连接
-        mHubProxy = mHubConnection.createHubProxy(SERVER_HUB_CHAT);
         time = 0;
         connectTimeout();
 
         if (mHubConnection != null) {
+            //连接之前先确保连接已经断开
+            mHubConnection.disconnect();
             Log.i("hub", "初始化服务");
             SignalRFuture<Void> awaitConnection = mHubConnection.start();
             Log.i("hub", "启动服务");
@@ -117,14 +121,37 @@ public class SignalRService extends Service {
                     }
                 }, String.class);
 
-//                    serviceOpatorClient();
+                mHubProxy.on(CLIENT_OPENORCLOSE, new SubscriptionHandler1<Integer>()//接收返回的数据
+                {
+                    @Override
+                    public void run(Integer msg) {
+                        Log.i("hub", "  接收到的推送 屏幕的开关 " + msg);
+                        MessageBean bean = new MessageBean();
+                        bean.setMsgCode(Catition.SETOPENCLOSEPING);
+                        bean.setMsgi(msg);
+                        EventBus.getDefault().post(bean);
+                    }
+                }, Integer.class);
+
+                mHubProxy.on(CLIENT_SETOPENSTYE, new SubscriptionHandler2<String,String>()//接收返回的数据
+                {
+                    @Override
+                    public void run(String type, String second) {
+                        Log.i("hub", "  接收到的推送 设置屏幕的开关状态 " + type+ "   "+second);
+                        MessageBean bean = new MessageBean();
+                        bean.setMsgCode(Catition.SETDISPALYMILL);
+                        bean.setMsgi(Integer.parseInt(second));
+                        bean.setMsgs(type);
+                        EventBus.getDefault().post(bean);
+                    }
+                }, String.class,String.class);
 
                 String token = mHubConnection.getConnectionToken();
 
                 if (token != null) {
                     Log.i("hub", "连接·成功");
                     //发送Mac地址给服务器
-                    sendData("2e:10:58:f2:e7:4e");
+                    sendData(ComUtils.getMac());
                 } else {
                     Log.i("hub", "连接失败");
                 }
@@ -147,8 +174,10 @@ public class SignalRService extends Service {
                 } else {
                     Log.i("hub", "连接失败正在重新连接");
                     if(mHubConnection != null) {
-                        mHubConnection.stop();
-                        mHubConnection = null;
+                        mHubConnection.disconnect();
+                    }else{
+                        mHubConnection = new HubConnection(serverUrl);//初始化连接
+                        mHubProxy = mHubConnection.createHubProxy(SERVER_HUB_CHAT);
                     }
                     startSignalR();
                 }
@@ -156,6 +185,7 @@ public class SignalRService extends Service {
         }
     }
 
+    //刚刚登陆的时候发送MAC地址
     public void sendData(String mac) {
         mHubProxy.invoke(String.class, SERVER_METHOD_SEND, mac)
                 .done(new Action() {
@@ -172,34 +202,46 @@ public class SignalRService extends Service {
         });
     }
 
-
+//    public void stopService(String mac){
+//        mHubProxy.invoke(String.class, SERVER_STOP_SERVICE, mac)
+//                .done(new Action() {
+//                    @Override
+//                    public void run(Object o) throws Exception {
+//                        Log.i(TAG, "Success");
+//                    }
+//                }).onError(new ErrorCallback() {
+//            @Override
+//            public void onError(Throwable throwable) {
+//                Log.e(TAG, "Error: " + throwable.getMessage());
+//            }
+//        });
+//    }
     /**
      * 服务器通知客户端调用方法
      */
-    private void serviceOpatorClient() {
-        mHubProxy.subscribe("broadcastMessageone").addReceivedHandler(
-                new Action<JsonElement[]>() {
-                    @Override
-                    public void run(JsonElement[] obj)
-                            throws Exception {
-                        Log.i("hub", "ffffffff" + obj[0].toString() + "长度：" + obj.length);
-                        Log.i("hub", "ffffffff" + obj[1].toString() + "长度：" + obj.length);
-                        Log.i("hub", "ffffffff" + obj[2].toString() + "长度：" + obj.length);
-                        Log.i("hub", "ffffffff" + obj[3].toString() + "长度：" + obj.length);
-                        if (obj.length > 3) {
-                            String data = obj[2].toString();
-                            Log.i("hub", obj[2].toString());
-                        }
-
-                    }
-                });
-    }
+//    private void serviceOpatorClient() {
+//        mHubProxy.subscribe("broadcastMessageone").addReceivedHandler(
+//                new Action<JsonElement[]>() {
+//                    @Override
+//                    public void run(JsonElement[] obj)
+//                            throws Exception {
+//                        Log.i("hub", "ffffffff" + obj[0].toString() + "长度：" + obj.length);
+//                        Log.i("hub", "ffffffff" + obj[1].toString() + "长度：" + obj.length);
+//                        Log.i("hub", "ffffffff" + obj[2].toString() + "长度：" + obj.length);
+//                        Log.i("hub", "ffffffff" + obj[3].toString() + "长度：" + obj.length);
+//                        if (obj.length > 3) {
+//                            String data = obj[2].toString();
+//                            Log.i("hub", obj[2].toString());
+//                        }
+//
+//                    }
+//                });
+//    }
 
     /**
      * 连接服务器超时
      */
     public void connectTimeout() {
-
 
         Meitimer = new Timer();
         TimerTask task = new TimerTask() {
@@ -220,7 +262,6 @@ public class SignalRService extends Service {
                         Meitimer.cancel();
                         return;
                     }
-
                     time = time + 1;
                 } catch (Exception e) {
                     // TODO: handle exception
@@ -233,9 +274,8 @@ public class SignalRService extends Service {
     @Override
     public void onDestroy() {
         if(mHubConnection != null) {
-            mHubConnection.stop();
+            mHubConnection.disconnect();
         }
         super.onDestroy();
-
     }
 }

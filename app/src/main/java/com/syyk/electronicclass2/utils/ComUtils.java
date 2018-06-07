@@ -171,6 +171,14 @@ public class ComUtils {
                 }else{
                     return mac;
                 }
+            case "name" :
+                String name = preferences.getString("name",null);
+                if(StringUtils.isEmpty(name)){
+                    StringUtils.showToast("请先绑定教室");
+                    return null;
+                }else{
+                    return name;
+                }
             case "hip" :
                 return preferences.getString("hIp","192.168.1.198");
             case "hport" :
@@ -183,6 +191,12 @@ public class ComUtils {
                 return preferences.getString("vUser","admin");
             case "vpass" :
                 return preferences.getString("vPass","syyk8888");
+            case "adminName" :
+                return preferences.getString("adminName","");
+            case "adminPhone" :
+                return preferences.getString("adminPhone","");
+            case "adminCard" :
+                return preferences.getString("adminCard","");
         }
         return null;
     }

@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dip"
-            android:text="绑定教室"
+            android:text="绑定实训室"
             android:textColor="@color/black" />
         <Button
             android:id="@+id/setting_UpDate_bt"
@@ -120,6 +120,51 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dip"
+            android:visibility="gone"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/setting_getYing_bt"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:text="查询硬件版本号"/>
+
+            <Button
+                android:id="@+id/setting_Copen_bt"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:text="设置为长开"/>
+
+            <Button
+                android:id="@+id/setting_Cclose_bt"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:text="设置为常闭(120S)" />
+
+            <Button
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:visibility="invisible"
+                android:textColor="@color/black"
+                android:text="退出软件"/>
+
+        </LinearLayout>
+
         <!--<TextView-->
             <!--android:layout_width="wrap_content"-->
             <!--android:layout_height="wrap_content"-->
@@ -156,6 +201,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         tool:text="软件名称：电子班牌"
+        android:visibility="gone"
         android:textColor="@color/white" />
 
     <TextView

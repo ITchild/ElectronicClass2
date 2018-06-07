@@ -3,6 +3,7 @@ package com.syyk.electronicclass2.fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
@@ -59,6 +60,9 @@ public class IntroduceFragment extends Fragment {
     @BindView(R.id.introduce_con_ll)
     LinearLayout introduce_con_ll;
 
+    @BindView(R.id.introduce_name_tv)
+    TextView introduce_name_tv;
+
 //    @BindView(R.id.introduce_con_tv)
 //    TextView introduce_con_tv;
     @BindView(R.id.introduce_ECode_iv)
@@ -103,7 +107,12 @@ public class IntroduceFragment extends Fragment {
         // 设置图片
         introduce_ECode_iv.setImageBitmap(bitmap);
 
-        handler.postDelayed(runnable,5000);
+        String name = ComUtils.getSave("name");
+        if(!StringUtils.isEmpty(name)){
+            introduce_name_tv.setText(name);
+        }else{
+            introduce_name_tv.setText("请绑定教室");
+        }
 
     }
 
@@ -141,10 +150,6 @@ public class IntroduceFragment extends Fragment {
                         introduce_load_pb.setVisibility(View.GONE);
                         introduce_dis_rv.setVisibility(View.VISIBLE);
 
-                        if((imageData.size() == 1&&linearLayoutManager.findFirstCompletelyVisibleItemPosition() != 0)
-                                || imageData.size() >=2){
-                            introduce_dis_rv.start();
-                        }
                     }else{
                         StringUtils.showToast(JsonUtils.getJsonKey(josnString,"Message"));
                     }
@@ -164,6 +169,34 @@ public class IntroduceFragment extends Fragment {
                     Connection.getIntroduce(mac,NetCartion.GETINTRODUCE_BACK);
                 }
                 break;
+            case Catition.BINGCLASSROOM_SUCCESS://如果绑定教室成功
+                String name = ComUtils.getSave("name");
+                if(!StringUtils.isEmpty(name)){
+                    introduce_name_tv.setText(name);
+                }else{
+                    introduce_name_tv.setText("请绑定教室");
+                }
+                String mac1 = ComUtils.getSave("mac");
+                if(null != mac1){
+                    Connection.getIntroduce(mac1,NetCartion.GETINTRODUCE_BACK);
+                }
+                break;
+            case Catition.TELLFRAGMENTCLICKED : //主界面发送来的界面的点击消息
+                if(bean.getMsgi() == 2){
+                    //开始滚动
+                    if((imageData.size() == 1&&linearLayoutManager.findFirstCompletelyVisibleItemPosition() != 0)
+                            || imageData.size() >=2){
+                        introduce_dis_rv.start();
+                        handler.sendEmptyMessageDelayed(110,1000);
+                    }
+                }else{
+                    if(introduce_dis_rv.isRunning()) {
+                        //停止滚动
+                        introduce_dis_rv.stop();
+                        handler.removeMessages(110);
+                    }
+                }
+                break;
         }
     }
 
@@ -174,7 +207,17 @@ public class IntroduceFragment extends Fragment {
     }
 
 
-    Handler handler = new Handler();
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(msg.what == 110){
+                startSorll();
+            }else if(msg.what == 111){
+                introduce_dis_rv.scrollToPosition(0);
+            }
+        }
+    };
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -182,13 +225,16 @@ public class IntroduceFragment extends Fragment {
                 introduce_dis_rv.start();
             }
             if(ComUtils.isSlideToBottom(introduce_dis_rv)){
-                introduce_dis_rv.scrollToPosition(0);
+                handler.sendEmptyMessage(111);
                 introduce_dis_rv.stop();
             }
-            handler.postDelayed(runnable,5000);
+            handler.sendEmptyMessageDelayed(110,5000);
         }
     };
 
+    private void startSorll(){
+        new Thread(runnable).start();
+    }
 
     @Override
     public void onDestroy() {

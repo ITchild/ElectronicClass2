@@ -40,6 +40,10 @@ public class NetCartion {
     public static final String CHECKVISION = ip+"/api/ClassCard/GetAndroidVersion";
     //上报教室的人数
     public static final String POSTCLASSPEONUM = ip+"/api/ClassCard/ClassRoomUsers";
+    //获取一周课表的接口
+    public static final String WEEKSCHEDULE = ip+"/api/ClassCard/GetScheduleWeek";
+    //给服务器上传android版本号和硬件的版本号
+    public static final String UPDATEANDROIDANDHARDWARE = ip+"/api/ClassCard/SetVersion";
 
     /**
      * int 类型的返回标志位置部分
@@ -82,5 +86,9 @@ public class NetCartion {
     public static final int CHECKVISIONCODE_BACK = 110;
     //上传教室内部人数的接口返回
     public static final int UPDATEROOMPEONUM_BACK = 111;
+    //获取一周课表的
+    public static final int GETWEEKSCHEDULE = 112;
+    //上传android版本号和硬件版本号的返回
+    public static final int UODATEANDROIDANDHARWARE_BACK = 113;
 
 }

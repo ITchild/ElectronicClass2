@@ -57,9 +57,11 @@ public class HomePagerFragment extends Fragment {
     private String videoUrl1 = "" ;
     //网络视频
 //    private String videoUrl2 = "http://ivi.bupt.edu.cn/hls/cctv6hd.m3u8";//CCTV6
-    private String videoUrl2 = "http://192.168.1.198:9512/Video/Main.mp4";//温兆宇的接口
+//    private String videoUrl2 = "http://192.168.1.198:9512/Video/Main.mp4";//温兆宇的接口
     private Uri uri;
     private Intent intent;
+
+    private boolean isViewDisplay = true;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,7 +87,7 @@ public class HomePagerFragment extends Fragment {
 
         homepager_pb.setVisibility(View.VISIBLE);
         homepager_videoView.setVisibility(View.GONE);
-
+//        存储在本地的路径
         videoUrl1 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()
                 +"/"+DownConfig.fileName;
         uri = Uri.parse( videoUrl1 );
@@ -118,6 +120,7 @@ public class HomePagerFragment extends Fragment {
                     if(state.equals("1")) {
                         HomePagerBean homePagerBean = JSON.parseObject(JsonUtils.getJsonObject(josnString, "Model"), HomePagerBean.class);
                         SharedPreferences preferences = getContext().getSharedPreferences("home", 0);
+                        //此处的SharedPreference中的“time”表示的为文件名称
                         if (!preferences.getString("time", "").equals(homePagerBean.getFile())) {
 //                        //存储时间
                             DownConfig.url = NetCartion.hip + homePagerBean.getFile();
@@ -176,11 +179,40 @@ public class HomePagerFragment extends Fragment {
                 startDown();
                 break;
             case Catition.REFRESH_FRISTTHREE ://刷新首界面
+            case Catition.BINGCLASSROOM_SUCCESS://绑定教室成功
                 String mac = ComUtils.getSave("mac");
                 if(null != mac){
                     Connection.getHomePager(mac,NetCartion.GETHOMEPAGER_BACK);
                 }
                 break;
+            case Catition.TELLFRAGMENTCLICKED : //主界面发送来的界面的点击消息
+                if(bean.getMsgi() == 0){
+                    //开始播放视频
+                    isViewDisplay = true;
+//                    playVideo();
+                }else{
+                    //停止视频
+                    isViewDisplay = false;
+                }
+                setVoideState();
+                break;
+        }
+    }
+
+
+//    private Runnable mRunnable = new Runnable() {
+//        @Override
+//        public void run() {
+//
+//        }
+//    };
+
+    private void setVoideState(){
+//        new Thread(mRunnable).start();
+        if(isViewDisplay){
+            playVideo();
+        }else{
+            homepager_videoView.pause();
         }
     }
 
@@ -196,12 +228,18 @@ public class HomePagerFragment extends Fragment {
      * 开始播放
      */
     private void playVideo(){
-        homepager_pb.setVisibility(View.GONE);
-        homepager_videoView.setVisibility(View.VISIBLE);
-        //设置视频路径
-        homepager_videoView.setVideoURI(uri);
-        //开始播放视频
-        homepager_videoView.start();
+        if(isViewDisplay) {
+            homepager_pb.setVisibility(View.GONE);
+            homepager_videoView.setVisibility(View.VISIBLE);
+            //设置视频路径
+            homepager_videoView.setVideoURI(uri);
+            //开始播放视频
+            if (homepager_videoView.isPlaying()) {
+                homepager_videoView.stopPlayback();
+            }
+            homepager_videoView.start();
+
+        }
     }
 
     /**
@@ -210,7 +248,7 @@ public class HomePagerFragment extends Fragment {
     class MyPlayerOnCompletionListener implements MediaPlayer.OnCompletionListener {
         @Override
         public void onCompletion(MediaPlayer mp) {
-            //重新开始播放
+            //重新开始播
             playVideo();
         }
     }

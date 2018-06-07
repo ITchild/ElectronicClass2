@@ -40,4 +40,24 @@ public class Catition {
     public static final int SIGNALR_SEND = 1013;
     //开始上传离线签到的信息
     public static final int POSTUPNONETATTEN = 1014;
+    //刷新课表
+    public static final int REFRESHSCHEDULE = 1015;
+
+    //设置屏幕开关的标志
+    public static final int SETOPENCLOSEPING = 1016;
+    //设置屏幕开启的延时的时间
+    public static final int SETDISPALYMILL = 1017;
+
+
+    //通知界面被点击的事件标志
+    public static final int TELLFRAGMENTCLICKED = 1018;
+
+
+
+    /**************测试的时候使用的********************/
+    //查询硬件版本号
+    public static final int GETYINGVERSION = 30001;
+    //设置屏幕常亮
+    public static final int SETPINGCOPEN = 30002;
+
 }

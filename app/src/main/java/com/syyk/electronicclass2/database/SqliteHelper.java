@@ -19,8 +19,14 @@ public class SqliteHelper extends SQLiteOpenHelper {
 
         db.execSQL("CREATE TABLE schedule (id integer primary key autoincrement, " +
                 "SyllabusId integer, " +
+                "TeacherCard varchar(20), " +
+                "AdminName varchar(15), " +
+                "AdminPhone varchar(15), " +
+                "AdminCard varchar(20), " +
+                "LessonDate varchar(20), " +
                 "ClassRoomName varchar(20), " +
                 "TeacherName varchar(10), " +
+                "TeacherPhone carchar(20), " +
                 "CategoryName varchar(10), " +
                 "StartTime varchar(15), " +
                 "EndTime varchar(15), " +

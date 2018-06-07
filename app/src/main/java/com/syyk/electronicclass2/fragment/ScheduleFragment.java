@@ -19,6 +19,7 @@ import com.syyk.electronicclass2.R;
 import com.syyk.electronicclass2.adapter.ScheduleAdapter;
 import com.syyk.electronicclass2.bean.MessageBean;
 import com.syyk.electronicclass2.bean.ScheduleBean;
+import com.syyk.electronicclass2.database.RCDBHelper;
 import com.syyk.electronicclass2.dialog.CalendarDialog;
 import com.syyk.electronicclass2.dialog.LoadingDialog;
 import com.syyk.electronicclass2.dialog.backcall.GetCalendarDateCall;
@@ -67,6 +68,8 @@ public class ScheduleFragment extends Fragment {
 
     private LoadingDialog loadingDialog;
 
+    private RCDBHelper db;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,6 +88,8 @@ public class ScheduleFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        db = new RCDBHelper(getContext());
 
         scheduleAdapter = new ScheduleAdapter(getContext(), data);
         schedule_dis_rv.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -186,6 +191,17 @@ public class ScheduleFragment extends Fragment {
         } else if (bean.getResCode() == NetCartion.FIAL) {
             loadingDialog.cancel();
             StringUtils.showToast(bean.getRes());
+            switch (bean.getBackCode()){
+                case NetCartion.GETTOATTENDANCANDSCHE_BACK:
+                    //获取今天课表失败，查询是否有课表的缓存
+//                    List<ScheduleBean> dateSchedule = db.getDateSchedule(ElectronicApplication.getmIntent().date+"T00:00:00");
+                    StringUtils.showLog("网络失败，进行课表的刷新");
+                    List<ScheduleBean> dateSchedule = db.getDateSchedule("2018-05-09T00:00:00");
+                    if(dateSchedule != null){
+                        ElectronicApplication.getmIntent().todaySchedule = dateSchedule;
+                    }
+                    break;
+            }
         }
     }
 
@@ -201,6 +217,12 @@ public class ScheduleFragment extends Fragment {
                 if (mac != null) {
                     Connection.getSchedule(mac, NetCartion.GETTODAYSCHEDULE_BACK);
 //                    Connection.getNoDaySchedule(mac,"2018/05/09",NetCartion.GETTODAYSCHEDULE_BACK);
+                }
+                break;
+            case Catition.REFRESHSCHEDULE ://定时刷新的课表
+                String mac1 = ComUtils.getSave("mac");
+                if (mac1 != null) {
+                    Connection.getSchedule(mac1, NetCartion.GETTODAYSCHEDULE_BACK);
                 }
                 break;
         }

@@ -2,6 +2,7 @@ package com.syyk.electronicclass2.fragment;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
@@ -62,6 +63,8 @@ public class NoticeFragment extends Fragment {
 
     private String isUpDate = "";
 
+    private Thread thread ;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,18 +87,16 @@ public class NoticeFragment extends Fragment {
         notice_dis_rv.setLayoutManager(linearLayoutManager);
         notice_dis_rv.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         notice_dis_rv.setAdapter(noticeAdapter);
-
-        handler.postDelayed(runnable,5000);
-
-    }
-
-    @Override
-    public void onResume() {
+        notice_dis_rv.stop();
         //连接网络获取公告
         String mac = ComUtils.getSave("mac");
         if(null != mac){
             Connection.getNotice(mac,NetCartion.GETNOTICE_BACK);
         }
+    }
+
+    @Override
+    public void onResume() {
         super.onResume();
     }
 
@@ -122,11 +123,6 @@ public class NoticeFragment extends Fragment {
                         notice_load_pb.setVisibility(View.GONE);
                         notice_dis_rv.setVisibility(View.VISIBLE);
 
-
-                        if((imageData.size() == 1&&linearLayoutManager.findFirstCompletelyVisibleItemPosition() != 0)
-                                || imageData.size() >=2){
-                            notice_dis_rv.start();
-                        }
                     }else{
                         StringUtils.showToast(JsonUtils.getJsonKey(josnString,"Message"));
                     }
@@ -141,11 +137,27 @@ public class NoticeFragment extends Fragment {
     public void noticePagerMsgEvent(MessageBean bean){
         switch (bean.getMsgCode()){
             case Catition.REFRESH_FRISTTHREE ://刷新首界面
+            case Catition.BINGCLASSROOM_SUCCESS://如果绑定教室成功
                 String mac = ComUtils.getSave("mac");
                 if(null != mac){
                     Connection.getNotice(mac,NetCartion.GETNOTICE_BACK);
                 }
                 break;
+            case Catition.TELLFRAGMENTCLICKED : //主界面发送来的界面的点击消息
+                if(bean.getMsgi() == 1){
+                    //开始滚动
+                    if((imageData.size() == 1&&linearLayoutManager.findFirstCompletelyVisibleItemPosition() != 0)
+                            || imageData.size() >=2){
+                        notice_dis_rv.start();
+                    }
+                }else{
+                    if(notice_dis_rv.isRunning()) {
+                        //停止滚动
+                        notice_dis_rv.stop();
+                        handler.removeMessages(112);
+                    }
+                }
+//                break;
         }
     }
 
@@ -157,7 +169,17 @@ public class NoticeFragment extends Fragment {
     }
 
 
-    Handler handler = new Handler();
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(msg.what == 112){
+                startScll();
+            }else if(msg.what == 113){
+                notice_dis_rv.scrollToPosition(0);
+            }
+        }
+    };
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -165,12 +187,16 @@ public class NoticeFragment extends Fragment {
                 notice_dis_rv.start();
             }
             if(ComUtils.isSlideToBottom(notice_dis_rv)){
-                notice_dis_rv.scrollToPosition(0);
+                handler.sendEmptyMessage(113);
                 notice_dis_rv.stop();
             }
-            handler.postDelayed(runnable,5000);
+            handler.sendEmptyMessageDelayed(112,5000);
         }
     };
+
+    private void startScll(){
+       new Thread(runnable).start();
+    }
 
     @Override
     public void onDestroy() {

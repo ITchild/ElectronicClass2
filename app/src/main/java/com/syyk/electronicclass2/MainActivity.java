@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Handler;
@@ -13,6 +14,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -37,6 +39,7 @@ import com.syyk.electronicclass2.fragment.NoticeFragment;
 import com.syyk.electronicclass2.fragment.ScheduleFragment;
 import com.syyk.electronicclass2.fragment.SettingFragmnet;
 import com.syyk.electronicclass2.httpcon.Connection;
+import com.syyk.electronicclass2.httpcon.ConnectionClient;
 import com.syyk.electronicclass2.httpcon.HttpEventBean;
 import com.syyk.electronicclass2.httpcon.NetCartion;
 import com.syyk.electronicclass2.serialport.ISerialPortConnection;
@@ -88,7 +91,8 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     @BindView(R.id.main_AllNum_tv)
     TextView main_AllNum_tv;
 
-
+    @BindView(R.id.tv_classroom)
+    TextView tv_classroom;
     @BindView(R.id.tv_course)
     TextView tv_course;
     @BindView(R.id.tv_class_time_start)
@@ -139,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
 
     private String cardID = "";//上报的卡号
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -157,30 +162,39 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         UpdateManger.removeApk();
         //走接口，获取系统的时间
         Connection.getSystemTime(NetCartion.GETSYSTEMTIMEBACK);
-//        2a4e06123cf04ee9a0e1237f7c3ffe90
-//        Connection.PostCardIdMsg("2a4e06123cf04ee9a0e1237f7c3ffe90", "185", NetCartion.POSTCARDIDMSG_BACK);
         //开启连接SignalR的Service
         Intent intent = new Intent();
         intent.setClass(this, SignalRService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        //获取一周的课表
+        getWeekSchedule();
+
+        String name = ComUtils.getSave("name");
+        if (name != null) {
+            tv_classroom.setText(name);
+        } else {
+            tv_classroom.setText("请绑定教室");
+        }
+
+        //复位HDMI
+        serial.writeHex("06A00600ACFF");
+
     }
 
     /**
      * Defines callbacks for service binding, passed to bindService()
      */
-    private final ServiceConnection mConnection = new ServiceConnection()
-    {
+    private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
-        public void onServiceConnected(ComponentName name, IBinder service)
-        {
+        public void onServiceConnected(ComponentName name, IBinder service) {
             // We've bound to SignalRService, cast the IBinder and get SignalRService instance
             SignalRService.LocalBinder binder = (SignalRService.LocalBinder) service;
             mService = binder.getService();
             mBound = true;
         }
+
         @Override
-        public void onServiceDisconnected(ComponentName arg0)
-        {
+        public void onServiceDisconnected(ComponentName arg0) {
             mBound = false;
         }
     };
@@ -201,10 +215,12 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
             @Override
             public void onMessage(String message) {
                 //字符串的形式接受数据
+                StringUtils.showLog("TXT的串口接受：" + message);
             }
 
             @Override
             public void onHexStrMessage(String hexMessage) {
+                StringUtils.showLog("HEX的串口接受：" + hexMessage);
                 PortReciverSendData(ComUtils.hexStringToBytes(hexMessage));
             }
         });
@@ -225,12 +241,15 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         tableData.add(new NoticeFragment());
         tableData.add(new IntroduceFragment());
         tableData.add(new ScheduleFragment());
-//        tableData.add(new LivewFragment());
-        tableData.add(new LiveNewFragment());
         tableData.add(new AttendanceFragmnet());
+        tableData.add(new LiveNewFragment());
         tableData.add(new SettingFragmnet());
 
         db = new RCDBHelper(this);
+
+        main_savePeo_tv.setText("管理员：" + ComUtils.getSave("adminName"));
+        main_savePeoPho_tv.setText("电话：" + ComUtils.getSave("adminPhone"));
+
     }
 
     /**
@@ -259,7 +278,6 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
 
     /**
      * 串口的数据解析
-     *
      * @param bean
      */
     private void PortReciverSendData(byte[] bean) {
@@ -298,7 +316,20 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
             cardID = cardId;
             StringUtils.showToast("卡号为：" + cardId);
             if (cardId != null) {
-                if (!frontCarId.equals(cardId)) {
+                if (getIsSuperCard(cardId)) {//判断是否为超级管理员卡
+                    if (isSettingFlag) {//进入设置界面
+                        isSettingFlag = false;
+                        entrySettingDialog.cancel();
+                        //跳到设置界面
+                        vp_content.setCurrentItem(6);
+                        sendClaickMsg(6);
+                        mian_title_Rl.setVisibility(View.VISIBLE);
+                        main_right_ll.setVisibility(View.VISIBLE);
+                    } else {//告诉硬件刷卡 开锁
+                        serial.writeHex("07A0030101ACFF");
+                    }
+                }
+                if(!isSettingFlag) {
                     String SyllabusId = ElectronicApplication.getmIntent().SyllabusId;
                     if (SyllabusId != null) {
                         Connection.PostCardIdMsg(cardId, SyllabusId, NetCartion.POSTCARDIDMSG_BACK);
@@ -306,26 +337,14 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                     } else {
                         StringUtils.showToast("当前没有课程");
                     }
-                } else {
-                    StringUtils.showCenterToast("你已经签到了！！！");
-                }
-                if(getIsSuperCard(cardId)){//判断是否为超级管理员卡
-                    if(isSettingFlag){//进入设置界面
-                        isSettingFlag = false;
-                        entrySettingDialog.cancel();
-                        vp_content.setCurrentItem(6);
-                        mian_title_Rl.setVisibility(View.VISIBLE);
-                        main_right_ll.setVisibility(View.VISIBLE);
-                    }else{//告诉硬件刷卡 开锁
-                        serial.writeHex("07A0030101ACFF");
-                    }
                 }
             }
         } else if (data.startsWith("07B0020101")) {
             //有人进入
             classRoomPeopleNum++;
             StringUtils.showLog("教室进入一个人，现有：" + classRoomPeopleNum + "人");
-            Connection.upDateRoomPeoNum(classRoomPeopleNum,NetCartion.UPDATEROOMPEONUM_BACK);
+//            StringUtils.showToast("教室进入一个人");
+            Connection.upDateRoomPeoNum(classRoomPeopleNum, NetCartion.UPDATEROOMPEONUM_BACK);
         } else if (data.startsWith("07B0020102")) {
             //有人出去
             classRoomPeopleNum--;
@@ -333,13 +352,34 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                 classRoomPeopleNum = 0;
             }
             StringUtils.showLog("教室出去一个人，现有：" + classRoomPeopleNum + "人");
-            Connection.upDateRoomPeoNum(classRoomPeopleNum,NetCartion.UPDATEROOMPEONUM_BACK);
+//            StringUtils.showToast("教室出去一个人");
+            Connection.upDateRoomPeoNum(classRoomPeopleNum, NetCartion.UPDATEROOMPEONUM_BACK);
         } else if (data.startsWith("08B00302")) {//08 B0 03 02 01 00 XX FF
-            int yingGao = Integer.parseInt(data.substring(8,10),16);
-            int yingDi = Integer.parseInt(data.substring(10,12),16);
-            String yingVisionCode = yingGao+"."+yingDi;
-            String androidVisionCode = ComUtils.getLocalVersionCode(this)+"";
-
+            //硬件信息查询的返回
+            int yingGao = Integer.parseInt(data.substring(8, 10), 16);
+            int yingDi = Integer.parseInt(data.substring(10, 12), 16);
+            String yingVisionCode = yingGao + "." + yingDi;
+//            StringUtils.showToast("硬件版本号：" + yingVisionCode);
+            String androidVisionCode = ComUtils.getLocalVersionCode(this) + "";
+            //获取一周的课表
+            String mac = ComUtils.getSave("mac");
+            if (mac != null) {
+                //走接口上传安卓版本号和硬件版本号
+                Connection.upDateAndroidAndHardWare(androidVisionCode,
+                        yingVisionCode, mac, NetCartion.UODATEANDROIDANDHARWARE_BACK);
+            }
+        }else if(data.startsWith("07B00301")){//人体红外的上报
+            String state= data.substring(8,10);
+            if(state.equals("01")){//有人
+//                StringUtils.showToast("有人来了");
+            }else if(state.equals("02")){//无人
+//                StringUtils.showToast("人已经走了");
+                //人走了，跳到课表界面
+                vp_content.setCurrentItem(3);
+                sendClaickMsg(3);
+                mian_title_Rl.setVisibility(View.VISIBLE);
+                main_right_ll.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -374,7 +414,8 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                     String message = JsonUtils.getJsonKey(data, "Message");
                     if (state.equals("1")) {
                         if (message != null && message.equals("Start")) {//老师刷卡，代表课程开启
-                            //代表课程开启
+                            //代表课程开启,开教室门
+                            serial.writeHex("07A0030101ACFF");
                         } else {//学生刷卡
                             StringUtils.showCenterToast("签到成功");
                             String num = JsonUtils.getJsonKey(JsonUtils.getJsonObject(data, "Model"), "Attdence");
@@ -394,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                         main_signNum_tv.setText(model);
                     }
                     break;
-                case NetCartion.UPDATEROOMPEONUM_BACK :
+                case NetCartion.UPDATEROOMPEONUM_BACK:
                     //上传教室人数的返回
                     String String = bean.getRes();
                     String status = JsonUtils.getJsonKey(String, "Status");
@@ -402,19 +443,64 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                         StringUtils.showLog("上报实时人数成功");
                     }
                     break;
+                case NetCartion.GETWEEKSCHEDULE://获取一周课表的返回
+                    List<ScheduleBean> weekSchedule = new ArrayList<>();
+                    String dataString = bean.getRes();
+                    String State = JsonUtils.getJsonKey(dataString, "Status");
+                    if (State.equals("1")) {
+                        weekSchedule = JSON.parseArray(JsonUtils.getJsonArr(dataString, "Model")
+                                .toString(), ScheduleBean.class);
+                        //如果不为空，开启新线程存储数据
+                        if (weekSchedule != null && weekSchedule.size() != 0) {
+                            //取出管理员和能开门的卡号
+                            ScheduleBean bean1 = weekSchedule.get(0);
+                            String AdminName = bean1.getAdminName();
+                            String AdminPhone = bean1.getAdminPhone();
+                            String AdminCard = bean1.getAdminCard();
+                            SharedPreferences preferences = getSharedPreferences("Setting", 0);
+                            SharedPreferences.Editor editor = preferences.edit();
+                            if (!StringUtils.isEmpty(AdminName)) {
+                                editor.putString("adminName", AdminName);
+                            }
+                            if (!StringUtils.isEmpty(AdminPhone)) {
+                                editor.putString("adminPhone", AdminPhone);
+                            }
+                            if (!StringUtils.isEmpty(AdminCard)) {
+                                editor.putString("adminCard", AdminCard);
+                            }
+                            editor.commit();
+                            //进行数据的存储
+                            saveWeekSchedule(weekSchedule);
+                        }else if(weekSchedule != null && weekSchedule.size() == 0){
+                            //如果获取到的周课表长度为0，则删除缓存的课表
+                            db.deleteAllSchedule();
+                        }
+                    }
+                    break;
+                case NetCartion.UODATEANDROIDANDHARWARE_BACK:
+                    //走接口上传android版本号和硬件版本号的返回
+                    StringUtils.showLog(bean.getRes());
+                    break;
             }
         } else if (bean.getResCode() == NetCartion.FIAL) {
             StringUtils.showToast(bean.getRes());
             StringUtils.showLog("接口错误：" + bean.getRes());
-            switch (bean.getBackCode()){
-                case NetCartion.POSTCARDIDMSG_BACK ://刷卡上报失败后进行本地存储
-                    StringUtils.showLog("刷卡失败 卡号："+cardID);
+            switch (bean.getBackCode()) {
+                case NetCartion.POSTCARDIDMSG_BACK://刷卡上报失败后进行本地存储
+                    StringUtils.showLog("刷卡失败 卡号：" + cardID);
                     String SyllabusId = ElectronicApplication.getmIntent().SyllabusId;
                     if (SyllabusId != null) {//放到数据库中
-                        AttenBean attenBean = new AttenBean();
-                        attenBean.setSyllabusid(SyllabusId);
-                        attenBean.setCardid(cardID);
-                        db.saveCardId(attenBean);
+                        //先判断时候为老师的卡
+                        if(isTeacher(SyllabusId,cardID)){
+                            //如果是老师的卡，开门
+                            serial.writeHex("07A0030101ACFF");
+                        }else {
+                            AttenBean attenBean = new AttenBean();
+                            attenBean.setSyllabusid(SyllabusId);
+                            attenBean.setCardid(cardID);
+                            db.saveCardId(attenBean);
+                            StringUtils.showToast("保存成功");
+                        }
                     } else {
                         StringUtils.showToast("当前没有课程");
                     }
@@ -427,9 +513,6 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     public void mainMsgEvent(MessageBean bean) {
         String SyllabusId;
         switch (bean.getMsgCode()) {
-//            case Catition.SETTINGLIANGDU ://设置屏幕的亮度
-//                serial.writeHex("060101"+bean.getMsgs()+"05FF");
-//                break;
             case Catition.MENUSETTING:
             case Catition.UPSETTING:
             case Catition.DOWNSETTING:
@@ -440,7 +523,6 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                 //更新主页课表信息UI
                 SyllabusId = ElectronicApplication.getmIntent().SyllabusId;
                 if (null == SyllabusId) {
-
                     tv_course.setText("");
                     tv_class_time_start.setText("");
                     tv_class_time_end.setText("");
@@ -453,11 +535,11 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                 } else {
                     for (ScheduleBean scheduleBean : ElectronicApplication.getmIntent().todaySchedule) {
                         if (SyllabusId.equals("" + scheduleBean.getSyllabusId())) {
-                            main_savePeo_tv.setText("安全员："+scheduleBean.getAdminName());
-                            main_savePeoPho_tv.setText("TEL："+scheduleBean.getAdminPhone());
+                            main_savePeo_tv.setText("管理员：" + scheduleBean.getAdminName());
+                            main_savePeoPho_tv.setText("电话：" + scheduleBean.getAdminPhone());
                             tv_course.setText(scheduleBean.getCategoryName());
                             tv_class_time_start.setText(scheduleBean.getStartTime());
-                            tv_class_time_end.setText(scheduleBean.getEndTime());
+                            tv_class_time_end.setText(" - "+scheduleBean.getEndTime());
                             tv_class.setText(scheduleBean.getClassName());
                             tv_teacher.setText(scheduleBean.getTeacherName());
                             tv_teacherPhone.setText(scheduleBean.getTeacherPhone());
@@ -488,7 +570,74 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                 main_signNum_tv.setText(bean.getMsgi() + "");
                 tv_name.setText(bean.getMsgs());
                 break;
+            case Catition.BINGCLASSROOM_SUCCESS://如果绑定教室成功，获取离线课表
+                String mac = ComUtils.getSave("mac");
+                if (mac != null) {
+                    Connection.getNoNetWorkSchedule(mac, NetCartion.GETWEEKSCHEDULE);
+                }
+                String name = ComUtils.getSave("name");
+                if (name != null) {
+                    tv_classroom.setText(name);
+                } else {
+                    tv_classroom.setText("请绑定教室");
+                }
+                break;
+            case Catition.SETOPENCLOSEPING://设置屏幕的开关
+                if (bean.getMsgi() == 0) {//关闭
+                    serial.writeHex("07A0050102AFFF");
+                } else if (bean.getMsgi() == 1) {//开启
+                    serial.writeHex("07A0050101AEFF");
+                }
+                break;
+            case Catition.SETDISPALYMILL:
+                //设置屏幕的开关状态以及屏幕亮的时候的延时时间
+                if (bean.getMsgs().equals("0")) {//关闭
+                    serial.writeHex("07A0050102AFFF");
+                } else if (bean.getMsgs().equals("1")) {//长开
+                    serial.writeHex("07A0050101AEFF");
+                }
+//                08 A0 02 02 00 0A XX FF
+                int timei = bean.getMsgi();
+                String time = ComUtils.changeString(Integer.toHexString(timei), 4);
+                String crc = Integer.toHexString(172 + timei);
+                crc = crc.substring(crc.length() - 2, crc.length());
+                serial.writeByte("08A00202" + time + crc + "FF", 500);
+                break;
+            /*************测试*****************/
+            case Catition.GETYINGVERSION ://获取硬件的版本号
+                //查询硬件版本号
+                serial.writeHex("06A00400AAFF");
+                break;
+            case Catition.SETPINGCOPEN ://设置屏幕常亮
+                if(bean.getMsgs().equals("open")) {
+                    serial.writeHex("07A0050101AEFF");
+                }else if(bean.getMsgs().equals("close")){
+                    serial.writeHex("07A0050102AFFF");
+//                    08 A0 02 02 00 0A XX FF
+                    int time1i = bean.getMsgi();
+                    String time1 = ComUtils.changeString(Integer.toHexString(time1i), 4);
+                    String crc1 = Integer.toHexString(172 + time1i);
+                    crc1 = crc1.substring(crc1.length() - 2, crc1.length());
+                    serial.writeByte("08A00202" + time1 + crc1 + "FF",500);
+                }
+                break;
         }
+    }
+
+    /**
+     * 存储一周的课表
+     * @param beans
+     */
+    private void saveWeekSchedule(final List<ScheduleBean> beans) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                db.deleteAllSchedule();
+                for (ScheduleBean bean : beans) {
+                    db.saveSchedule(bean);
+                }
+            }
+        }).start();
     }
 
     @Override
@@ -496,50 +645,105 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         switch (checkedId) {
             case R.id.rb_home_page:
                 vp_content.setCurrentItem(0);
+                sendClaickMsg(0);
                 mian_title_Rl.setVisibility(View.VISIBLE);
                 main_right_ll.setVisibility(View.VISIBLE);
                 break;
             case R.id.rb_notice:
                 vp_content.setCurrentItem(1);
+                sendClaickMsg(1);
                 mian_title_Rl.setVisibility(View.GONE);
                 main_right_ll.setVisibility(View.GONE);
                 break;
             case R.id.rb_introduce:
                 vp_content.setCurrentItem(2);
+                sendClaickMsg(2);
                 mian_title_Rl.setVisibility(View.GONE);
                 main_right_ll.setVisibility(View.GONE);
                 break;
             case R.id.rb_schedule_time:
                 vp_content.setCurrentItem(3);
-                mian_title_Rl.setVisibility(View.VISIBLE);
-                main_right_ll.setVisibility(View.VISIBLE);
-                break;
-            case R.id.rb_live:
-                vp_content.setCurrentItem(4);
+                sendClaickMsg(3);
                 mian_title_Rl.setVisibility(View.VISIBLE);
                 main_right_ll.setVisibility(View.VISIBLE);
                 break;
             case R.id.rb_attendance:
+                vp_content.setCurrentItem(4);
+                sendClaickMsg(4);
+                mian_title_Rl.setVisibility(View.VISIBLE);
+                main_right_ll.setVisibility(View.VISIBLE);
+                break;
+            case R.id.rb_live:
                 vp_content.setCurrentItem(5);
+                sendClaickMsg(5);
                 mian_title_Rl.setVisibility(View.VISIBLE);
                 main_right_ll.setVisibility(View.VISIBLE);
                 break;
             case R.id.rb_settings:
                 isSettingFlag = true;
-                //展示提示刷卡的提示框
+//                展示提示刷卡的提示框
                 entrySettingDialog.show();
+//                vp_content.setCurrentItem(6);
+//                sendClaickMsg(6);
+//                mian_title_Rl.setVisibility(View.VISIBLE);
+//                main_right_ll.setVisibility(View.VISIBLE);
                 break;
         }
     }
 
-    private boolean getIsSuperCard(String card){
-        String mac = ComUtils.getSave("mac");
-        if(null != mac) {//软件首次运行时。刷任意卡即可进入设置界面
-            return true;
-        }else{//软件已经绑定教室后再去判断是否为管理员卡
+    /**
+     * 告诉界面是否被点击显示
+     * @param position
+     */
+    private void sendClaickMsg(int position){
+        MessageBean bean = new MessageBean();
+        bean.setMsgCode(Catition.TELLFRAGMENTCLICKED);
+        bean.setMsgi(position);
+        EventBus.getDefault().post(bean);
+    }
 
+    /**
+     * 判断是否为管理员的卡
+     * @param card
+     * @return
+     */
+    private boolean getIsSuperCard(String card) {
+        String mac = ComUtils.getSave("mac");
+        if (null != mac) {//软件首次运行时。刷任意卡即可进入设置界面
+            return true;
+        } else {//软件已经绑定教室后再去判断是否为管理员卡
+            String adminCards = ComUtils.getSave("adminCard");
+            if(adminCards.endsWith(",")){
+                adminCards = adminCards.substring(0,adminCards.length()-1);
+            }
+            if((!StringUtils.isEmpty(adminCards)) && adminCards.contains(",")){
+                String [] datas = adminCards.split(",");
+                for (String dataCars : datas){
+                    if(dataCars.equals(card)){
+                        return true;
+                    }
+                }
+            }else if((!StringUtils.isEmpty(adminCards)) && (! adminCards.contains(","))){
+                if(card.equals(adminCards)){
+                    return true;
+                }
+            }
+//            return false;
+            //暂时为方便测试，先全部返回true;
             return true;
         }
+    }
+
+    private boolean isTeacher(String SyllabusId,String cardID){
+        List<ScheduleBean> data = db.getAllSchedule();
+        for (ScheduleBean bean : data){
+            if(SyllabusId.equals(bean.getSyllabusId()+"")){
+                if(bean.getTeacherCard().equals(cardID)){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -647,14 +851,18 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
             }
             /*****************更新课程ID的判断 结束*********************/
             /****************判断人体探测人数的清空 开始*****************/
-             //只要日期不同就进行清空一次
+            //只要日期不同就进行清空一次
             if (!cleanPeopleNumFlag.equals(ElectronicApplication.getmIntent().date)) {
                 cleanPeopleNumFlag = ElectronicApplication.getmIntent().date;
                 classRoomPeopleNum = 0;
             }
             /****************判断人体探测人数的清空 结束*****************/
             upDataUIFlag++;
-            if (upDataUIFlag == 54) {//大概20分钟
+            if(upDataUIFlag%26 == 0) {//大概20分钟
+                //获取一周的课表
+                getWeekSchedule();
+            }
+            if (upDataUIFlag == 54) {//大概40分钟
                 //重置upDataUiFlag以及发送消息获取首页，公告和介绍
                 upDataUIFlag = 1;
                 MessageBean bean = new MessageBean();
@@ -662,13 +870,9 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                 EventBus.getDefault().post(bean);
                 //查询硬件版本号
                 serial.writeHex("06A00400AAFF");
-                //获取亮屏时间
-                //走接口去获取    等待接口？？？？？？？？？？
-
-                //发送消息，通知上传离线签到信息是
+                //发送消息，通知上传离线签到信息
                 bean.setMsgCode(Catition.POSTUPNONETATTEN);
                 EventBus.getDefault().post(bean);
-
             }
             //发送消息查看SignalR是否离线
             MessageBean bean = new MessageBean();
@@ -680,8 +884,20 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         }
     };
 
+
     private void startMainPor() {
         new Thread(ziRunnable).start();
+    }
+
+    /**
+     * 获取一周的课表
+     */
+    private void getWeekSchedule(){
+        //获取一周的课表
+        String mac = ComUtils.getSave("mac");
+        if (mac != null) {
+            Connection.getNoNetWorkSchedule(mac, NetCartion.GETWEEKSCHEDULE);
+        }
     }
 
     @Override
@@ -704,4 +920,41 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         }
         EventBus.getDefault().unregister(this);
     }
+
+
+    private boolean isExit;
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            exit();
+            return false;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
+
+    public void exit() {
+        if (!isExit) {
+            isExit = true;
+            StringUtils.showToast("再按一次退出程序");
+            mHandler.sendEmptyMessageDelayed(0, 2000);
+        } else {
+//            Intent intent = new Intent(Intent.ACTION_MAIN);
+//            intent.addCategory(Intent.CATEGORY_HOME);
+//            startActivity(intent);
+            System.exit(0);
+        }
+    }
+
+    Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            // TODO Auto-generated method stub
+            super.handleMessage(msg);
+            isExit = false;
+        }
+    };
+
+
 }

@@ -6,11 +6,13 @@ import android.os.Message;
 import android.util.Log;
 
 import com.friendlyarm.AndroidSDK.HardwareControler;
+import com.syyk.electronicclass2.utils.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 
 /**
- * 窗口通信类 注意：需先setMessageListener，然后connect Created by fei on 2017/6/1
+ * 窗口通信类 注意：需先setMessageListener，然后connect
+ * Created by fei on 2017/6/1
  */
 public class SerialPortConnection {
     private ISerialPortConnection iSPConnection;
@@ -91,7 +93,7 @@ public class SerialPortConnection {
     public void write(String str) {
         try {
             HardwareControler.write(fd, str.getBytes());
-            Log.i("TEST","send_success");
+            StringUtils.showLog("send_success  "+str);
         } catch (Exception e) {
             e.printStackTrace();
             Log.i("TEST","send_feild");
@@ -104,7 +106,7 @@ public class SerialPortConnection {
     public void writeHex(String str) {
         try {
             HardwareControler.write(fd, hexStringToBytes(str));
-            Log.i("TEST","send_success");
+            StringUtils.showLog("send_success   "+str);
         } catch (Exception e) {
             e.printStackTrace();
             Log.i("TEST","send_feild");
@@ -122,6 +124,7 @@ public class SerialPortConnection {
             e.printStackTrace();
         }
         HardwareControler.write(fd, hexStringToBytes(str));
+        StringUtils.showLog(str);
     }
     /**
      * 延时向串口发送数据

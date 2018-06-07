@@ -178,14 +178,8 @@ public class AttendanceFragmnet extends Fragment{
                 if(mac1 != null) {
                     //课程和考勤都在一起
                     Connection.getSchedule(mac1, NetCartion.GETTOATTENDANCANDSCHE_BACK);
-//                    Connection.getNoDaySchedule(mac1,"2018/05/09",NetCartion.GETTOATTENDANC_BACK);
                 }
                 break;
-//            case Catition.DELETECARDID :
-////                //定期删除本地签到信息
-////                db.deleteAllCardId();
-////                initData();
-//                break;
             case Catition.POSTUPNONETATTEN :
                 //上传离线的签到的信息
                 noNetAttens = db.getAllCardId();

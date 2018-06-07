@@ -53,7 +53,7 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.MyView
             holder.itemSchedule_first_v.setVisibility(View.VISIBLE);
             holder.itemSchedule_num_tv.setText("时间");
             holder.itemSchedule_name_tv.setText("课程名称");
-            holder.itemSchedule_teacherName_tv.setText("教师名字");
+            holder.itemSchedule_teacherName_tv.setText("教师");
             holder.itemSchedule_stuName_tv.setText("上课班级");
         } else {
             holder.itemSchedule_num_tv.setText("第" + position + "节课");
